@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.secrets.gradle.plugin)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -83,12 +85,22 @@ dependencies {
     // Google play services: location
     implementation(libs.google.play.services.location)
 
-    // Moshi
-    implementation(libs.moshi)
-    implementation(libs.moshi.kotlin)
-
     // lifecycle compose
     implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson.converter)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
+    testImplementation(libs.retrofit.mock)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.android.compiler)
+    kspAndroidTest(libs.hilt.android.compiler)
+    androidTestImplementation(libs.hilt.android.testing)
 
     // Coroutine unit test dependency
     testImplementation(libs.coroutine.test)
