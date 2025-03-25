@@ -104,9 +104,11 @@ dependencies {
 
     // Coroutine unit test dependency
     testImplementation(libs.coroutine.test)
+    testImplementation(libs.kotlin.test)
 
     // Mockito
     testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
