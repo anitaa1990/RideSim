@@ -17,6 +17,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Add MAPS_API_KEY to BuildConfig
+        buildConfigField("String", "MAPS_API_KEY", "\"${project.findProperty("MAPS_API_KEY") ?: ""}\"")
     }
 
     buildTypes {
@@ -37,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -70,6 +74,7 @@ dependencies {
     implementation(libs.google.maps.utils)
 
     // Google Places API
+    implementation(libs.google.places)
     implementation(libs.google.places.compose)
 
     // Google play services: maps

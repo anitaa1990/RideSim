@@ -14,6 +14,7 @@ lifecycleRuntimeComposeAndroid = "2.8.7"
 googleMapsCompose = "6.5.2"
 googlePlayServicesMaps = "19.1.0"
 googlePlayServicesLocation = "21.3.0"
+googlePlaces = "3.4.0"
 googlePlacesCompose = "0.1.3"
 googleMapsUtils = "3.5.3"
 moshi = "1.15.0"
@@ -59,6 +60,7 @@ google-play-services-maps = { group = "com.google.android.gms", name = "play-ser
 google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "googlePlayServicesLocation" }
 
 ## Google Places API: provides a reusable Place Autocomplete composable based on the new Places API
+google-places = { group = "com.google.android.libraries.places", name = "places", version.ref = "googlePlaces" }
 google-places-compose = { group = "com.google.maps.android", name = "places-compose", version.ref = "googlePlacesCompose" }
 
 ## Google Maps Utils: includes utility functions like PolyUtil for decoding polylines
