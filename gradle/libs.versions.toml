@@ -6,8 +6,17 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.10.0"
-composeBom = "2024.04.01"
+activityCompose = "1.10.1"
+composeBom = "2025.03.00"
+mockitoKotlin = "5.2.1"
+coroutineTestVersion = "1.9.0"
+lifecycleRuntimeComposeAndroid = "2.8.7"
+googleMapsCompose = "6.5.2"
+googlePlayServicesMaps = "19.1.0"
+googlePlayServicesLocation = "21.3.0"
+googlePlacesCompose = "0.1.3"
+googleMapsUtils = "3.5.3"
+moshi = "1.15.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,6 +33,39 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+
+## Coroutine unit test – to unit test coroutines
+coroutine-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test-jvm", version.ref = "coroutineTestVersion" }
+
+## Mockito – to mock Dao/repository class in unit tests
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+
+## Lifecycle Compose
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose-android", version.ref = "lifecycleRuntimeComposeAndroid" }
+
+## Google Maps Compose: simplifies the integration of Google Maps into Jetpack Compose by providing
+## composable functions that wrap the Maps SDK
+google-maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "googleMapsCompose" }
+
+## Google play services - Maps & Location :
+## Maps is required for integrating Google Maps into the app. It provides the core functionality of
+## the Google Maps SDK for Android, such as displaying maps and interacting with map features.
+google-play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "googlePlayServicesMaps" }
+
+## Location: This library is used for location-related functionalities, such as accessing the user's
+## current location, geofencing, and activity recognition. It is essential if your app needs
+##real-time location updates or geolocation services.
+google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "googlePlayServicesLocation" }
+
+## Google Places API: provides a reusable Place Autocomplete composable based on the new Places API
+google-places-compose = { group = "com.google.maps.android", name = "places-compose", version.ref = "googlePlacesCompose" }
+
+## Google Maps Utils: includes utility functions like PolyUtil for decoding polylines
+google-maps-utils = { group = "com.google.maps.android", name = "android-maps-utils", version.ref = "googleMapsUtils" }
+
+## Moshi: needed for parsing JSON from the Google Directions API
+moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi" }
+moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

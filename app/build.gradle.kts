@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.an.ridesim"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.an.ridesim"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -49,6 +49,35 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Google Maps Compose
+    implementation(libs.google.maps.compose)
+
+    // Google Maps Utils
+    implementation(libs.google.maps.utils)
+
+    // Google Places API
+    implementation(libs.google.places.compose)
+
+    // Google play services: maps
+    implementation(libs.google.play.services.maps)
+
+    // Google play services: location
+    implementation(libs.google.play.services.location)
+
+    // Moshi
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
+
+    // lifecycle compose
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Coroutine unit test dependency
+    testImplementation(libs.coroutine.test)
+
+    // Mockito
+    testImplementation(libs.mockito.kotlin)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
