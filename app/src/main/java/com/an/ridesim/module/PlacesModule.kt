@@ -1,4 +1,4 @@
-package com.an.ridesim.data
+package com.an.ridesim.module
 
 import android.content.Context
 import com.an.ridesim.BuildConfig

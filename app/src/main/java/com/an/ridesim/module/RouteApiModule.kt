@@ -1,5 +1,6 @@
-package com.an.ridesim.data
+package com.an.ridesim.module
 
+import com.an.ridesim.data.RouteApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
