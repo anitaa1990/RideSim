@@ -62,20 +62,23 @@ fun HomeScreen(
         lifecycleOwner = LocalLifecycleOwner.current
     )
 
-    // Request location permission
-    if (!uiState.isPermissionGranted) {
-        RequestPermissionScreen(onPermissionChanged = { viewModel.updatePermissionState(it) })
-    } else viewModel.fetchCurrentLocationAsPickup()
-
     val cameraPositionState = rememberCameraPositionState()
 
-    // Animate camera to pickup location (on launch or update)
-    LaunchedEffect(uiState.pickupLocation) {
-        uiState.pickupLocation?.let {
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(it.toLatLng(), 18f),
-                durationMs = 1000
-            )
+    // Request location permission
+    if (!uiState.isPermissionGranted) {
+        RequestPermissionScreen(onPermissionChanged = {
+            viewModel.updatePermissionState(it)
+        })
+    } else {
+        viewModel.fetchCurrentLocationAsPickup()
+        // Animate camera to pickup location (on launch or update)
+        LaunchedEffect(uiState.pickupLocation) {
+            uiState.pickupLocation?.let {
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLngZoom(it.toLatLng(), 18f),
+                    durationMs = 1000
+                )
+            }
         }
     }
 
@@ -87,7 +90,8 @@ fun HomeScreen(
             dropLocation = uiState.dropLocation,
             carPosition = uiState.carPosition,
             routePolyline = uiState.routePolyline,
-            cameraPositionState = cameraPositionState
+            cameraPositionState = cameraPositionState,
+            isPermissionGranted = uiState.isPermissionGranted
         )
     }
 }
@@ -98,16 +102,17 @@ fun GoogleMapView(
     dropLocation: LatLngPoint?,
     carPosition: LatLngPoint?,
     routePolyline: List<LatLng>,
-    cameraPositionState: CameraPositionState
+    cameraPositionState: CameraPositionState,
+    isPermissionGranted: Boolean
 ) {
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
         properties = MapProperties(
-            isMyLocationEnabled = true
+            isMyLocationEnabled = isPermissionGranted
         ),
         uiSettings = MapUiSettings(
-            myLocationButtonEnabled = true
+            myLocationButtonEnabled = isPermissionGranted
         )
     ) {
         // Marker: Pickup point
