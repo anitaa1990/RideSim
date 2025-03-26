@@ -38,5 +38,8 @@ fun HomeScreen(
         lifecycleOwner = LocalLifecycleOwner.current
     )
 
-    // TODO: Request location permission
+    // Request location permission
+    if (!uiState.isPermissionGranted) {
+        RequestPermissionScreen(onPermissionChanged = { viewModel.updatePermissionState(it) })
+    }
 }

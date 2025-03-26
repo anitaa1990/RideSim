@@ -34,8 +34,18 @@ class RideViewModel @Inject constructor(
     private val locationUtils: LocationUtils
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(RideUiState())
+    private val _uiState = MutableStateFlow(RideUiState(
+        isPermissionGranted = locationUtils.hasLocationPermission()
+    ))
     val uiState: StateFlow<RideUiState> = _uiState.asStateFlow()
+
+    fun updatePermissionState(value: Boolean) {
+        _uiState.update {
+            it.copy(
+                isPermissionGranted = value
+            )
+        }
+    }
 
     /**
      * Fetches the device's last known location using LocationUtils.
@@ -207,6 +217,7 @@ class RideViewModel @Inject constructor(
      * Full UI state for the RideSim screen.
      */
     data class RideUiState(
+        val isPermissionGranted: Boolean,
         val pickupAddress: String? = null,
         val pickupLocation: LatLngPoint? = null,
         val dropAddress: String? = null,

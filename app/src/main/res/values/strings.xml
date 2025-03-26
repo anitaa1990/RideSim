@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">RideSim</string>
+    <string name="request_permission_title">Enable Location Permission</string>
+    <string name="request_permission_desc">Please enable location permission to start looking for rides.</string>
+    <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_settings">Settings</string>
 </resources>

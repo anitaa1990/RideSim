@@ -1,8 +1,10 @@
 package com.an.ridesim.util
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import com.an.ridesim.model.LatLngPoint
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -24,6 +26,10 @@ import kotlin.random.Random
 class LocationUtils @Inject constructor(
     private val context: Context
 ) {
+    fun hasLocationPermission() = ContextCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+
     /**
      * Fetches the user's last known location using the FusedLocationProviderClient.
      * Requires location permission to be granted.
