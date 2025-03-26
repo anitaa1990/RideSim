@@ -1,6 +1,14 @@
 package com.an.ridesim.util
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.location.Location
 import com.an.ridesim.model.LatLngPoint
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.suspendCancellableCoroutine
+import javax.inject.Inject
+import kotlin.coroutines.resumeWithException
 import kotlin.math.*
 import kotlin.random.Random
 
@@ -13,10 +21,34 @@ import kotlin.random.Random
  * - Simulating a driver's origin by generating a nearby point
  * - Calculating bearing for rotating car markers on the map
  */
-object LocationUtils {
+class LocationUtils @Inject constructor(
+    private val context: Context
+) {
+    /**
+     * Fetches the user's last known location using the FusedLocationProviderClient.
+     * Requires location permission to be granted.
+     *
+     * @param context The application context.
+     * @return Location object with latitude and longitude, or null if unavailable.
+     */
+    @SuppressLint("MissingPermission") // Permission should be handled before calling this method
+    suspend fun getLastKnownLocation(): LatLngPoint? {
+        return suspendCancellableCoroutine { cont ->
+            val fusedLocationClient: FusedLocationProviderClient =
+                LocationServices.getFusedLocationProviderClient(context)
 
-    private const val EARTH_RADIUS_KM = 6371.0  // Average radius of the Earth
-    private const val AVERAGE_SPEED_KMH = 40.0  // Used for estimating trip duration
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location ->
+                    cont.resume(LatLngPoint(location.latitude, location.longitude)) { _, _, _ -> }
+                }
+                .addOnFailureListener { exception ->
+                    cont.resumeWithException(exception)
+                }
+        }
+    }
+
+    private val EARTH_RADIUS_KM = 6371.0  // Average radius of the Earth
+    private val AVERAGE_SPEED_KMH = 40.0  // Used for estimating trip duration
 
     /**
      * Calculates the shortest distance between two points on Earth
