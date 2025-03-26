@@ -1,6 +1,5 @@
 package com.an.ridesim.ui.viewmodel
 
-import android.location.Location
 import com.an.ridesim.data.PlacesRepository
 import com.an.ridesim.data.RouteRepository
 import com.an.ridesim.model.*
@@ -35,16 +34,17 @@ class RideViewModelTest {
 
     @Test
     fun `fetchCurrentLocationAsPickup updates pickupLocation and address`() = runTest {
-        val location = Location("mock").apply {
-            latitude = 13.0827
-            longitude = 80.2707
-        }
-        whenever(locationUtils.getLastKnownLocation()).thenReturn(location)
+        // Arrange: provide mock location that matches what we will assert
+        val mockLatLngPoint = LatLngPoint(13.0827, 80.2707)
+        whenever(locationUtils.getLastKnownLocation()).thenReturn(mockLatLngPoint)
 
+        // Act
         viewModel.fetchCurrentLocationAsPickup()
         advanceUntilIdle()
 
+        // Assert
         val state = viewModel.uiState.value
+        assertNotNull(state.pickupLocation)
         assertEquals(13.0827, state.pickupLocation?.latitude!!, 0.001)
         assertEquals(80.2707, state.pickupLocation.longitude, 0.001)
         assertEquals("Current Location", state.pickupAddress)

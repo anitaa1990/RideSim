@@ -45,10 +45,10 @@ class RideViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val location = locationUtils.getLastKnownLocation()
-                location?.let {
+                location?.let { point ->
                     _uiState.update {
                         it.copy(
-                            pickupLocation = it.pickupLocation?.let { point -> LatLngPoint(point.latitude, point.longitude) },
+                            pickupLocation = point,
                             pickupAddress = "Current Location"
                         )
                     }

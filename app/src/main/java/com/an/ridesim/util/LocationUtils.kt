@@ -32,14 +32,14 @@ class LocationUtils @Inject constructor(
      * @return Location object with latitude and longitude, or null if unavailable.
      */
     @SuppressLint("MissingPermission") // Permission should be handled before calling this method
-    suspend fun getLastKnownLocation(): Location? {
+    suspend fun getLastKnownLocation(): LatLngPoint? {
         return suspendCancellableCoroutine { cont ->
             val fusedLocationClient: FusedLocationProviderClient =
                 LocationServices.getFusedLocationProviderClient(context)
 
             fusedLocationClient.lastLocation
                 .addOnSuccessListener { location ->
-                    cont.resume(location) { _, _, _ -> }
+                    cont.resume(LatLngPoint(location.latitude, location.longitude)) { _, _, _ -> }
                 }
                 .addOnFailureListener { exception ->
                     cont.resumeWithException(exception)
