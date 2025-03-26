@@ -1,10 +1,34 @@
 package com.an.ridesim.ui.screen
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.an.ridesim.model.LatLngPoint
+import com.an.ridesim.model.toLatLng
 import com.an.ridesim.ui.viewmodel.RideViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.Polyline
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.an.ridesim.R
 
 /**
  * [HomeScreen] is the main UI Composable for the RideSim ride-booking experience.
@@ -41,5 +65,83 @@ fun HomeScreen(
     // Request location permission
     if (!uiState.isPermissionGranted) {
         RequestPermissionScreen(onPermissionChanged = { viewModel.updatePermissionState(it) })
+    } else viewModel.fetchCurrentLocationAsPickup()
+
+    val cameraPositionState = rememberCameraPositionState()
+
+    // Animate camera to pickup location (on launch or update)
+    LaunchedEffect(uiState.pickupLocation) {
+        uiState.pickupLocation?.let {
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(it.toLatLng(), 18f),
+                durationMs = 1000
+            )
+        }
+    }
+
+    // Map UI
+    Box(modifier = Modifier.fillMaxSize()) {
+        // 1️⃣ Map view using Google Maps Compose
+        GoogleMapView(
+            pickupLocation = uiState.pickupLocation,
+            dropLocation = uiState.dropLocation,
+            carPosition = uiState.carPosition,
+            routePolyline = uiState.routePolyline,
+            cameraPositionState = cameraPositionState
+        )
+    }
+}
+
+@Composable
+fun GoogleMapView(
+    pickupLocation: LatLngPoint?,
+    dropLocation: LatLngPoint?,
+    carPosition: LatLngPoint?,
+    routePolyline: List<LatLng>,
+    cameraPositionState: CameraPositionState
+) {
+    GoogleMap(
+        modifier = Modifier.fillMaxSize(),
+        cameraPositionState = cameraPositionState,
+        properties = MapProperties(
+            isMyLocationEnabled = true
+        ),
+        uiSettings = MapUiSettings(
+            myLocationButtonEnabled = true
+        )
+    ) {
+        // Marker: Pickup point
+        pickupLocation?.let {
+            val context = LocalContext.current
+            val greenPinIcon = remember {
+                BitmapDescriptorFactory.fromBitmap(
+                    ContextCompat.getDrawable(context, R.drawable.ic_drop_marker)!!.toBitmap()
+                )
+            }
+            Marker(state = MarkerState(
+                position = it.toLatLng()),
+                icon = greenPinIcon,
+                anchor = Offset(0.5f, 1.2f)
+            )
+        }
+
+        // Marker: Drop point
+        dropLocation?.let {
+            Marker(state = MarkerState(position = it.toLatLng()))
+        }
+
+        // Marker: Moving car during simulation
+        carPosition?.let {
+            Marker(state = MarkerState(position = it.toLatLng()))
+        }
+
+        // Polyline: Route between pickup & drop
+        if (routePolyline.isNotEmpty()) {
+            Polyline(
+                points = routePolyline,
+                color = Color.Blue,
+                width = 10f
+            )
+        }
     }
 }
