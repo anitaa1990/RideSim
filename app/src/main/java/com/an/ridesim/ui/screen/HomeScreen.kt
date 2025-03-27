@@ -1,10 +1,11 @@
 package com.an.ridesim.ui.screen
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -104,7 +105,13 @@ fun HomeScreen(
     }
 
     // Bottom sheet scaffold state (for controlling the sheet's expansion/collapse)
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false,
+        confirmValueChange = { sheetValue ->
+            // Prevent dismiss on swipe down
+            sheetValue != SheetValue.Hidden
+        }
+    )
 
     // Root container
     Box(modifier = Modifier.fillMaxSize()) {
@@ -121,9 +128,10 @@ fun HomeScreen(
         // Ride Bottom Sheet UI
         ModalBottomSheet(
             containerColor = Color(0XFFF2F1F4),
-            modifier = Modifier.fillMaxHeight(0.6f),
             sheetState = sheetState,
-            onDismissRequest = {  }
+            onDismissRequest = {  },
+            modifier = Modifier
+                .imePadding()   // 👈 Pushes content above the keyboard
         ) {
             RideBottomSheetContent(
                 uiState = uiState,
