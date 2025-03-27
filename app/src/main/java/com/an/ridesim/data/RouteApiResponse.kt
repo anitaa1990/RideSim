@@ -9,6 +9,7 @@ data class RouteApiResponse(
 
 data class Route(
     val legs: List<Leg>,
+    @SerializedName("overview_polyline")
     val overviewPolyline: Polyline,
     val summary: String
 )
