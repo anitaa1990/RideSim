@@ -54,40 +54,53 @@ fun RideInputSection(
     onSuggestionSelected: (AutocompletePrediction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // We use LazyColumn here (instead of Column + verticalScroll) because:
+    // - It prevents "infinite height constraint" crashes inside BottomSheetScaffold
+    // - It allows the bottom sheet to expand to full height when needed
+    // - It supports scrolling when the content exceeds available height (eg. when keyboard is open)
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(Color(0XFFF2F1F4))
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .imePadding()
+    ) {
+        // Top greeting text
+        item {
+            CustomTitle(text = stringResource(R.string.ride_input_title))
+        }
+
+        // Input card for address entry
+        item {
+            AddressCard(
+                pickupText = pickupText,
+                dropText = dropText,
+                onPickupChange = onPickupChange,
+                onDropChange = onDropChange,
+                onFieldFocusChanged = onFieldFocusChanged
+            )
+        }
+
+        // Suggestion dropdown (below input card)
+        if (suggestions.isNotEmpty()) {
+            items(suggestions.size) { index ->
+                val prediction = suggestions[index]
+                SuggestionItem(
+                    prediction = prediction,
+                    onClick = { onSuggestionSelected(prediction) }
+                )
+            }
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
             .background(Color(0XFFF2F1F4))
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
-        // Top greeting text
-        CustomTitle(text = stringResource(R.string.ride_input_title))
 
-        // Input card for address entry
-        AddressCard(
-            pickupText = pickupText,
-            dropText = dropText,
-            onPickupChange = onPickupChange,
-            onDropChange = onDropChange,
-            onFieldFocusChanged = onFieldFocusChanged
-        )
-
-        // Suggestion dropdown (below input card)
-        if (suggestions.isNotEmpty()) {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth()
-            ) {
-                items(suggestions.size) { index ->
-                    val prediction = suggestions[index]
-                    SuggestionItem(
-                        prediction = prediction,
-                        onClick = { onSuggestionSelected(prediction) }
-                    )
-                }
-            }
-        }
     }
 }
 
@@ -116,7 +129,7 @@ fun AddressCard(
                 painter = painterResource(R.drawable.ic_location_arrow),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.fillMaxHeight(0.1f)
+                modifier = Modifier.height(80.dp)
             )
 
             Column {
