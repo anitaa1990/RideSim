@@ -9,7 +9,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -21,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.ridesim.R
 import com.an.ridesim.model.LatLngPoint
 import com.an.ridesim.model.toLatLng
+import com.an.ridesim.ui.viewmodel.AddressFieldType
 import com.an.ridesim.ui.viewmodel.RideViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -87,10 +91,22 @@ fun HomeScreen(
         }
     }
 
+    // Input fields are held locally (until user confirms selection)
+    var pickupInput by rememberSaveable { mutableStateOf("") }
+    var dropInput by rememberSaveable { mutableStateOf("") }
+
+    // Sync UI state pickup/drop when place is selected
+    LaunchedEffect(uiState.pickupAddress) {
+        pickupInput = uiState.pickupAddress.orEmpty()
+    }
+    LaunchedEffect(uiState.dropAddress) {
+        dropInput = uiState.dropAddress.orEmpty()
+    }
+
     // Bottom sheet scaffold state (for controlling the sheet's expansion/collapse)
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
-    // Map UI
+    // Root container
     Box(modifier = Modifier.fillMaxSize()) {
         // 1️⃣ Map view using Google Maps Compose
         GoogleMapView(
@@ -110,10 +126,25 @@ fun HomeScreen(
             onDismissRequest = {  }
         ) {
             RideBottomSheetContent(
-                pickupText = uiState.pickupAddress ?: "",
-                dropText = uiState.dropAddress ?: "",
-                onPickupChange = { },
-                onDropChange = { }
+                uiState = uiState,
+                pickupInput = pickupInput,
+                dropInput = dropInput,
+                onPickupChange = {
+                    pickupInput = it
+                    viewModel.fetchAddressPredictions(it, isPickup = true)
+                },
+                onDropChange = {
+                    dropInput = it
+                    viewModel.fetchAddressPredictions(it, isPickup = false)
+                },
+                onFieldFocusChanged = { fieldType ->
+                    viewModel.updateFocusedField(fieldType)
+                },
+                onSuggestionSelected = { prediction ->
+                    val isPickup = uiState.focusedField == AddressFieldType.PICKUP
+                    viewModel.selectPlace(prediction.placeId, isPickup = isPickup)
+                    viewModel.updateFocusedField(AddressFieldType.NONE)
+                }
             )
         }
     }

@@ -4,11 +4,20 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.an.ridesim.model.LatLngPoint
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import java.io.IOException
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.coroutines.resumeWithException
 import kotlin.math.*
@@ -23,6 +32,7 @@ import kotlin.random.Random
  * - Simulating a driver's origin by generating a nearby point
  * - Calculating bearing for rotating car markers on the map
  */
+@Suppress("DEPRECATION")
 class LocationUtils @Inject constructor(
     private val context: Context
 ) {
@@ -52,6 +62,41 @@ class LocationUtils @Inject constructor(
                 }
         }
     }
+
+    suspend fun getAddressFromLatLng(latLng: LatLngPoint): String? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            suspendCancellableCoroutine { cont ->
+                Geocoder(context, Locale.getDefault()).getFromLocation(
+                    latLng.latitude,
+                    latLng.longitude,
+                    1,
+                    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+                    object : Geocoder.GeocodeListener {
+                        override fun onGeocode(addresses: MutableList<Address>) {
+                            val address = addresses.firstOrNull()?.getAddressLine(0)
+                            cont.resume(address) { _, _, _ -> }
+                        }
+
+                        override fun onError(errorMessage: String?) {
+                            cont.resume(null) { _, _, _ -> }
+                        }
+                    }
+                )
+            }
+        } else {
+            withContext(Dispatchers.IO) {
+                try {
+                    val addresses = Geocoder(context, Locale.getDefault())
+                        .getFromLocation(latLng.latitude, latLng.longitude, 1)
+                    addresses?.firstOrNull()?.getAddressLine(0)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    null
+                }
+            }
+        }
+    }
+
 
     private val EARTH_RADIUS_KM = 6371.0  // Average radius of the Earth
     private val AVERAGE_SPEED_KMH = 40.0  // Used for estimating trip duration

@@ -16,15 +16,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * [RideViewModel] manages the entire business logic and UI state
- * for the RideSim ride-hailing simulation app.
+ * [RideViewModel] manages all business logic and UI state for the RideSim app.
  *
- * It connects the UI to:
- * - Location utilities
- * - Places API
- * - Directions API
- * - Fare calculation
- * - Trip simulation (driver movement)
+ * Responsibilities:
+ * - Request and reverse geocode current location
+ * - Fetch address predictions from Places API as the user types
+ * - Handle selection of predicted addresses
+ * - Trigger route and fare calculations
+ * - Manage ride simulation (driver movement)
+ * - Handle UI state transitions and screen data flow
  */
 
 @HiltViewModel
@@ -39,6 +39,9 @@ class RideViewModel @Inject constructor(
     ))
     val uiState: StateFlow<RideUiState> = _uiState.asStateFlow()
 
+    /**
+     * Updates the location permission state.
+     */
     fun updatePermissionState(value: Boolean) {
         _uiState.update {
             it.copy(
@@ -48,19 +51,25 @@ class RideViewModel @Inject constructor(
     }
 
     /**
-     * Fetches the device's last known location using LocationUtils.
-     * If available, sets it as the pickup point in the UI.
+     * Updates which input field is currently focused.
+     * This helps determine whether pickup or drop suggestions should be shown.
+     */
+    fun updateFocusedField(type: AddressFieldType) {
+        _uiState.update { it.copy(focusedField = type) }
+    }
+
+    /**
+     * Fetches the last known device location and reverse geocodes it.
+     * Sets it as the default pickup point and address.
      */
     fun fetchCurrentLocationAsPickup() {
         viewModelScope.launch {
             try {
                 val location = locationUtils.getLastKnownLocation()
                 location?.let { point ->
+                    val address = locationUtils.getAddressFromLatLng(point)
                     _uiState.update {
-                        it.copy(
-                            pickupLocation = point,
-                            pickupAddress = "Current Location"
-                        )
+                        it.copy(pickupLocation = point, pickupAddress = address)
                     }
                 }
             } catch (e: Exception) {
@@ -70,8 +79,8 @@ class RideViewModel @Inject constructor(
     }
 
     /**
-     * Called when the user types in the pickup or drop text field.
-     * Fetches location suggestions using the Places API.
+     * Fetches place suggestions from the Google Places API.
+     * The results are stored based on whether the user is editing pickup or drop.
      */
     fun fetchAddressPredictions(query: String, isPickup: Boolean) {
         viewModelScope.launch {
@@ -82,15 +91,15 @@ class RideViewModel @Inject constructor(
                     else it.copy(dropSuggestions = results)
                 }
             } catch (_: Exception) {
-                // Silent failure – optionally handle UI error state
+                // Silent failure - fallback handled by empty suggestions
             }
         }
     }
 
     /**
-     * Called when the user selects a prediction from suggestions.
-     * Converts Place ID to full address and lat/lng using Places API.
-     * Updates either pickup or drop location and triggers route + fare calculation.
+     * When a prediction is selected by the user, this fetches the location and full address
+     * using the place ID and updates the state accordingly.
+     * Also triggers route and fare calculation if both points are available.
      */
     fun selectPlace(placeId: String, isPickup: Boolean) {
         viewModelScope.launch {
@@ -118,9 +127,8 @@ class RideViewModel @Inject constructor(
     }
 
     /**
-     * Fetches the route polyline, distance and duration between pickup and drop points
-     * using the Directions API (wrapped via RouteRepository).
-     * Also triggers fare calculation.
+     * Fetches route between pickup and drop points and calculates ETA.
+     * Updates the polyline and time/distance in UI state.
      */
     private fun calculateRouteAndFare() {
         val pickup = _uiState.value.pickupLocation
@@ -149,8 +157,7 @@ class RideViewModel @Inject constructor(
     }
 
     /**
-     * Calculates the fare using [FareCalculator], based on selected vehicle,
-     * distance, and duration.
+     * Calculates fare using selected vehicle type and route metrics.
      */
     private fun calculateFare() {
         val state = _uiState.value
@@ -232,6 +239,15 @@ class RideViewModel @Inject constructor(
         val routePolyline: List<LatLng> = emptyList(),
         val carPosition: LatLngPoint? = null,
         val locationError: String? = null,
-        val routeError: String? = null
+        val routeError: String? = null,
+        val focusedField: AddressFieldType = AddressFieldType.NONE
     )
+}
+
+/**
+ * Enum used to determine which address field is currently focused.
+ * Helps the UI know which suggestions to display.
+ */
+enum class AddressFieldType {
+    NONE, PICKUP, DROP
 }
