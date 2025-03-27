@@ -5,4 +5,7 @@
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_settings">Settings</string>
+    <string name="ride_input_title">Vanakkam, Chennai</string>
+    <string name="ride_input_pickup_placeholder">Where are you now?</string>
+    <string name="ride_input_drop_placeholder">Where are you going?</string>
 </resources>

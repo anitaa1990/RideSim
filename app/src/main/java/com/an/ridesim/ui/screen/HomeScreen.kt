@@ -1,7 +1,11 @@
 package com.an.ridesim.ui.screen
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.an.ridesim.R
 import com.an.ridesim.model.LatLngPoint
 import com.an.ridesim.model.toLatLng
 import com.an.ridesim.ui.viewmodel.RideViewModel
@@ -28,7 +33,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.an.ridesim.R
 
 /**
  * [HomeScreen] is the main UI Composable for the RideSim ride-booking experience.
@@ -54,6 +58,7 @@ import com.an.ridesim.R
  * live map interactivity and address input into a clean bottom-sheet UI.
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: RideViewModel
@@ -82,6 +87,9 @@ fun HomeScreen(
         }
     }
 
+    // Bottom sheet scaffold state (for controlling the sheet's expansion/collapse)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
     // Map UI
     Box(modifier = Modifier.fillMaxSize()) {
         // 1️⃣ Map view using Google Maps Compose
@@ -93,6 +101,21 @@ fun HomeScreen(
             cameraPositionState = cameraPositionState,
             isPermissionGranted = uiState.isPermissionGranted
         )
+
+        // Ride Bottom Sheet UI
+        ModalBottomSheet(
+            containerColor = Color(0XFFF2F1F4),
+            modifier = Modifier.fillMaxHeight(0.6f),
+            sheetState = sheetState,
+            onDismissRequest = {  }
+        ) {
+            RideBottomSheetContent(
+                pickupText = uiState.pickupAddress ?: "",
+                dropText = uiState.dropAddress ?: "",
+                onPickupChange = { },
+                onDropChange = { }
+            )
+        }
     }
 }
 
