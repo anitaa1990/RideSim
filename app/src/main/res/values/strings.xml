@@ -8,4 +8,19 @@
     <string name="ride_input_title">Vanakkam, Chennai</string>
     <string name="ride_input_pickup_placeholder">Where are you now?</string>
     <string name="ride_input_drop_placeholder">Where are you going?</string>
+    <string name="vehicle_auto_name">Auto</string>
+    <string name="vehicle_auto_desc">Commute friendly</string>
+    <string name="vehicle_auto_count">3</string>
+    <string name="vehicle_mini_name">AC Mini</string>
+    <string name="vehicle_mini_desc">Budget rides</string>
+    <string name="vehicle_mini_count">4</string>
+    <string name="vehicle_sedan_name">Sedan</string>
+    <string name="vehicle_sedan_desc">Plush rides</string>
+    <string name="vehicle_sedan_count">4</string>
+    <string name="vehicle_suv_name">SUV</string>
+    <string name="vehicle_suv_desc">Spacious rides</string>
+    <string name="vehicle_suv_count">6</string>
+    <string name="vehicle_suv_plus_name">SUV Plus</string>
+    <string name="vehicle_suv_plus_desc">Comfortable Innova</string>
+    <string name="vehicle_suv_plus_count">4</string>
 </resources>
