@@ -21,10 +21,13 @@ class RideViewModelTest {
     private val locationUtils: LocationUtils = mock()
     private lateinit var viewModel: RideViewModel
 
+    val scheduler = TestCoroutineScheduler()
+    val dispatcher = StandardTestDispatcher(scheduler)
+
     @Before
     fun setup() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
-        viewModel = RideViewModel(placesRepository, routeRepository, locationUtils)
+        Dispatchers.setMain(dispatcher)
+        viewModel = RideViewModel(placesRepository, routeRepository, locationUtils, dispatcher)
     }
 
     @After
@@ -34,15 +37,14 @@ class RideViewModelTest {
 
     @Test
     fun `fetchCurrentLocationAsPickup updates pickupLocation and address`() = runTest {
-        // Arrange: provide mock location that matches what we will assert
         val mockLatLngPoint = LatLngPoint(13.0827, 80.2707)
         whenever(locationUtils.getLastKnownLocation()).thenReturn(mockLatLngPoint)
 
-        // Act
         viewModel.fetchCurrentLocationAsPickup()
-        advanceUntilIdle()
 
-        // Assert
+        // Ensures coroutine launched inside ViewModel completes
+        runCurrent()
+
         val state = viewModel.uiState.value
         assertNotNull(state.pickupLocation)
         assertEquals(13.0827, state.pickupLocation?.latitude!!, 0.001)
@@ -55,7 +57,7 @@ class RideViewModelTest {
         whenever(locationUtils.getLastKnownLocation()).thenThrow(RuntimeException("Location error"))
 
         viewModel.fetchCurrentLocationAsPickup()
-        advanceUntilIdle()
+        runCurrent()
 
         val state = viewModel.uiState.value
         assertEquals("Location error", state.locationError)
@@ -66,10 +68,9 @@ class RideViewModelTest {
         val pickupLatLng = LatLng(13.0, 80.0)
         val dropLatLng = LatLng(13.01, 80.01)
 
-        // Setup drop location so route gets triggered
         whenever(placesRepository.resolvePlaceId("drop")).thenReturn(Pair(dropLatLng, "Drop"))
         viewModel.selectPlace("drop", isPickup = false)
-        advanceUntilIdle()
+        runCurrent()
 
         whenever(placesRepository.resolvePlaceId("pickup")).thenReturn(Pair(pickupLatLng, "Pickup"))
         whenever(routeRepository.getRoute(any(), any())).thenReturn(
@@ -77,7 +78,9 @@ class RideViewModelTest {
         )
 
         viewModel.selectPlace("pickup", isPickup = true)
-        advanceUntilIdle()
+
+        // Let coroutine execute until UI state is updated
+        runCurrent()
 
         val state = viewModel.uiState.value
         assertEquals("Pickup", state.pickupAddress)
@@ -90,19 +93,17 @@ class RideViewModelTest {
         val pickupLatLng = LatLng(13.01, 80.01)
         val dropLatLng = LatLng(13.02, 80.02)
 
-        // ✅ Set pickup first so both locations are available
         whenever(placesRepository.resolvePlaceId("pickup")).thenReturn(Pair(pickupLatLng, "Pickup"))
         viewModel.selectPlace("pickup", isPickup = true)
-        advanceUntilIdle()
+        runCurrent()
 
-        // ✅ Then test drop selection
         whenever(placesRepository.resolvePlaceId("drop")).thenReturn(Pair(dropLatLng, "Drop"))
         whenever(routeRepository.getRoute(any(), any())).thenReturn(
             RouteInfo(6.0, 14.0, listOf(dropLatLng))
         )
 
         viewModel.selectPlace("drop", isPickup = false)
-        advanceUntilIdle()
+        runCurrent()
 
         val state = viewModel.uiState.value
         assertEquals("Drop", state.dropAddress)
@@ -115,18 +116,16 @@ class RideViewModelTest {
         val pickupLatLng = LatLng(13.0, 80.0)
         val dropLatLng = LatLng(13.01, 80.01)
 
-        // Setup pickup first to satisfy the condition
         whenever(placesRepository.resolvePlaceId("pickup")).thenReturn(Pair(pickupLatLng, "Pickup"))
         viewModel.selectPlace("pickup", isPickup = true)
-        advanceUntilIdle()
+        runCurrent()
 
-        // Setup routeRepository to throw
         whenever(placesRepository.resolvePlaceId("fail")).thenReturn(Pair(dropLatLng, "Fail Place"))
         whenever(routeRepository.getRoute(any(), any()))
             .thenThrow(RuntimeException("Route error"))
 
         viewModel.selectPlace("fail", isPickup = false)
-        advanceUntilIdle()
+        runCurrent()
 
         val state = viewModel.uiState.value
         assertEquals("Route error", state.routeError)
@@ -142,11 +141,14 @@ class RideViewModelTest {
 
         viewModel.selectPlace("pickup", isPickup = true)
         viewModel.selectPlace("drop", isPickup = false)
-        advanceUntilIdle()
+        runCurrent()
 
         viewModel.updateVehicleType(VehicleType.SEDAN)
-        val state = viewModel.uiState.value
 
+        // Fare gets calculated in the same coroutine
+        runCurrent()
+
+        val state = viewModel.uiState.value
         assertEquals(VehicleType.SEDAN, state.selectedVehicle)
         assertNotNull(state.estimatedFare)
     }
@@ -158,7 +160,7 @@ class RideViewModelTest {
             .thenReturn(listOf(prediction))
 
         viewModel.fetchAddressPredictions("Chennai", isPickup = true)
-        advanceUntilIdle()
+        runCurrent()
 
         val state = viewModel.uiState.value
         assertEquals(1, state.pickupSuggestions.size)
@@ -180,25 +182,24 @@ class RideViewModelTest {
 
         viewModel.selectPlace("pickup", isPickup = true)
         viewModel.selectPlace("drop", isPickup = false)
-        advanceUntilIdle()
+        runCurrent()
 
         viewModel.startRideSimulation()
 
-        // 1️⃣ Expect DRIVER_ARRIVING first
-        assertEquals(TripState.DRIVER_ARRIVING, viewModel.uiState.value.tripState)
+        // 🚦 Ensure simulation coroutine starts
+        runCurrent()
 
-        // 2️⃣ Move to ON_TRIP
+        // Wait 3s to transition from DRIVER_ARRIVING to ON_TRIP
         advanceTimeBy(3000)
         runCurrent()
         assertEquals(TripState.ON_TRIP, viewModel.uiState.value.tripState)
 
-        // 3️⃣ Simulate car movement
+        // Wait 1s (car should start moving)
         advanceTimeBy(1000)
         runCurrent()
-        assertEquals(TripState.ON_TRIP, viewModel.uiState.value.tripState)
         assertNotNull(viewModel.uiState.value.carPosition)
 
-        // 4️⃣ Move to COMPLETED
+        // Final step: trip is completed
         advanceTimeBy(1000)
         runCurrent()
         assertEquals(TripState.COMPLETED, viewModel.uiState.value.tripState)

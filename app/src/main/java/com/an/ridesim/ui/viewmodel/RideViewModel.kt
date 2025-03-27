@@ -10,9 +10,12 @@ import com.an.ridesim.util.FareCalculator
 import com.an.ridesim.util.LocationUtils
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -31,7 +34,8 @@ import javax.inject.Inject
 class RideViewModel @Inject constructor(
     private val placesRepository: PlacesRepository,
     private val routeRepository: RouteRepository,
-    private val locationUtils: LocationUtils
+    private val locationUtils: LocationUtils,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RideUiState(
@@ -137,17 +141,23 @@ class RideViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val result = routeRepository.getRoute(pickup.toLatLng(), drop.toLatLng())
+                // 👇 Run network + decoding work in background
+                val result = withContext(dispatcher) {
+                    routeRepository.getRoute(pickup.toLatLng(), drop.toLatLng())
+                }
+
                 result?.let {
-                    _uiState.update {
-                        it.copy(
-                            distanceInKm = result.distanceInKm,
-                            durationInMinutes = result.durationInMinutes.toInt(),
-                            routePolyline = result.routePoints.map { pt ->
-                                LatLng(pt.latitude, pt.longitude)
-                            }
+                    val polylinePoints = it.routePoints.map { pt -> LatLng(pt.latitude, pt.longitude) }
+
+                    _uiState.update { state ->
+                        state.copy(
+                            distanceInKm = it.distanceInKm,
+                            durationInMinutes = it.durationInMinutes.toInt(),
+                            routePolyline = polylinePoints
                         )
                     }
+
+                    // 🚀 Now compute fare on UI thread (cheap)
                     calculateFare()
                 }
             } catch (e: Exception) {
