@@ -116,7 +116,7 @@ fun AddressCard(
                 painter = painterResource(R.drawable.ic_location_arrow),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.fillMaxHeight(0.15f)
+                modifier = Modifier.fillMaxHeight(0.1f)
             )
 
             Column {
@@ -167,7 +167,7 @@ fun RideAddressField(
         singleLine = true,
         decorationBox = { innerTextField ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (value.isEmpty()) {
+                if (value.isEmpty() && !isFocused) {
                     Text(
                         text = placeholder,
                         style = MaterialTheme.typography.bodyMedium,
