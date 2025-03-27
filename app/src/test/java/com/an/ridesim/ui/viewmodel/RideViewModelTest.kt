@@ -49,7 +49,7 @@ class RideViewModelTest {
         assertNotNull(state.pickupLocation)
         assertEquals(13.0827, state.pickupLocation?.latitude!!, 0.001)
         assertEquals(80.2707, state.pickupLocation.longitude, 0.001)
-        assertEquals("Current Location", state.pickupAddress)
+        assertNull(state.pickupAddress)
     }
 
     @Test
