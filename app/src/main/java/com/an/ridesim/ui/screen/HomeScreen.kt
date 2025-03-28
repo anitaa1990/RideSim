@@ -1,6 +1,8 @@
 package com.an.ridesim.ui.screen
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -140,46 +143,59 @@ fun HomeScreen(
     val peekHeight = screenHeight * 0.5f
 
     // Root container
-    BottomSheetScaffold(
-        scaffoldState = sheetState,
-        sheetPeekHeight = peekHeight,
-        modifier = Modifier.imePadding(),
-        sheetContainerColor = Color(0xFFF2F1F4),
-        sheetContent = {
-            RideBottomSheetContent(
-                uiState = uiState,
-                pickupInput = pickupInput,
-                dropInput = dropInput,
-                onPickupChange = {
-                    pickupInput = it
-                    viewModel.fetchAddressPredictions(it, isPickup = true)
-                },
-                onDropChange = {
-                    dropInput = it
-                    viewModel.fetchAddressPredictions(it, isPickup = false)
-                },
-                onFieldFocusChanged = {
-                    viewModel.updateFocusedField(it)
-                },
-                onSuggestionSelected = { prediction ->
-                    val isPickup = uiState.focusedField == AddressFieldType.PICKUP
-                    viewModel.selectPlace(prediction.placeId, isPickup)
-                    viewModel.updateFocusedField(AddressFieldType.NONE)
-                    focusManager.clearFocus()
-                },
-                onVehicleSelected = { viewModel.updateVehicleType(it) }
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        BottomSheetScaffold(
+            scaffoldState = sheetState,
+            sheetPeekHeight = peekHeight,
+            modifier = Modifier.imePadding(),
+            sheetContainerColor = Color(0xFFF2F1F4),
+            sheetContent = {
+                RideBottomSheetContent(
+                    uiState = uiState,
+                    pickupInput = pickupInput,
+                    dropInput = dropInput,
+                    onPickupChange = {
+                        pickupInput = it
+                        viewModel.fetchAddressPredictions(it, isPickup = true)
+                    },
+                    onDropChange = {
+                        dropInput = it
+                        viewModel.fetchAddressPredictions(it, isPickup = false)
+                    },
+                    onFieldFocusChanged = {
+                        viewModel.updateFocusedField(it)
+                    },
+                    onSuggestionSelected = { prediction ->
+                        val isPickup = uiState.focusedField == AddressFieldType.PICKUP
+                        viewModel.selectPlace(prediction.placeId, isPickup)
+                        viewModel.updateFocusedField(AddressFieldType.NONE)
+                        focusManager.clearFocus()
+                    },
+                    onVehicleSelected = { viewModel.updateVehicleType(it) }
+                )
+            }
+        ) {
+            GoogleMapView(
+                pickupLocation = uiState.pickupLocation,
+                dropLocation = uiState.dropLocation,
+                carPosition = uiState.carPosition,
+                routePolyline = uiState.routePolyline,
+                tripState = uiState.tripState,
+                cameraPositionState = cameraPositionState,
+                isPermissionGranted = uiState.isPermissionGranted
             )
         }
-    ) {
-        GoogleMapView(
-            pickupLocation = uiState.pickupLocation,
-            dropLocation = uiState.dropLocation,
-            carPosition = uiState.carPosition,
-            routePolyline = uiState.routePolyline,
-            tripState = uiState.tripState,
-            cameraPositionState = cameraPositionState,
-            isPermissionGranted = uiState.isPermissionGranted
-        )
+
+        if (uiState.isRideBookingReady()) {
+            Box(
+                modifier = Modifier.align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+            ) {
+                BookRideSection(191.0) { }
+            }
+        }
     }
 }
 
