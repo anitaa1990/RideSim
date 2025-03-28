@@ -30,4 +30,5 @@
     <string name="ride_detail_distance">%.1f km</string>
     <string name="ride_detail_time">%1$d mins</string>
     <string name="ride_detail_price">\u20B9 %1$,.0f</string>
+    <string name="btn_book_ride">Slide to book @ \u20B9 %1$,.0f</string>
 </resources>
