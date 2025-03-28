@@ -321,7 +321,12 @@ class RideViewModel @Inject constructor(
         val routeError: String? = null,
         val focusedField: AddressFieldType = AddressFieldType.NONE,
         val availableVehicles: List<VehicleDetail> = emptyList()
-    )
+    ) {
+        fun isRideBookingReady() = tripState == TripState.IDLE &&
+                pickupLocation != null
+                && dropLocation != null
+                && routePolyline.isNotEmpty()
+    }
 }
 
 /**
