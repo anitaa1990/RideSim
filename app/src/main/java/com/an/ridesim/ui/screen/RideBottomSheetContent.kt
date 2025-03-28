@@ -1,6 +1,7 @@
 package com.an.ridesim.ui.screen
 
 import androidx.compose.runtime.Composable
+import com.an.ridesim.model.VehicleType
 import com.an.ridesim.ui.viewmodel.AddressFieldType
 import com.an.ridesim.ui.viewmodel.RideViewModel.RideUiState
 import com.google.android.libraries.places.api.model.AutocompletePrediction
@@ -21,7 +22,8 @@ fun RideBottomSheetContent(
     onPickupChange: (String) -> Unit,
     onDropChange: (String) -> Unit,
     onFieldFocusChanged: (AddressFieldType) -> Unit,
-    onSuggestionSelected: (AutocompletePrediction) -> Unit
+    onSuggestionSelected: (AutocompletePrediction) -> Unit,
+    onVehicleSelected: (VehicleType) -> Unit
 ) {
     // Show the input section if pickup or drop is not selected
     if (uiState.pickupLocation == null || uiState.dropLocation == null || uiState.routePolyline.isEmpty()) {
@@ -42,7 +44,7 @@ fun RideBottomSheetContent(
     } else {
         RideDetailSection(
             uiState = uiState,
-            onVehicleSelected = {  },
+            onVehicleSelected = { onVehicleSelected(it) },
             onBookRide = {  }
         )
     }
