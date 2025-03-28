@@ -1,6 +1,7 @@
 package com.an.ridesim.ui.screen
 
 import androidx.compose.runtime.Composable
+import com.an.ridesim.model.VehicleType
 import com.an.ridesim.ui.viewmodel.AddressFieldType
 import com.an.ridesim.ui.viewmodel.RideViewModel.RideUiState
 import com.google.android.libraries.places.api.model.AutocompletePrediction
@@ -21,19 +22,30 @@ fun RideBottomSheetContent(
     onPickupChange: (String) -> Unit,
     onDropChange: (String) -> Unit,
     onFieldFocusChanged: (AddressFieldType) -> Unit,
-    onSuggestionSelected: (AutocompletePrediction) -> Unit
+    onSuggestionSelected: (AutocompletePrediction) -> Unit,
+    onVehicleSelected: (VehicleType) -> Unit
 ) {
-    RideInputSection(
-        pickupText = pickupInput,
-        dropText = dropInput,
-        onPickupChange = onPickupChange,
-        onDropChange = onDropChange,
-        onFieldFocusChanged = onFieldFocusChanged,
-        suggestions = when (uiState.focusedField) {
-            AddressFieldType.PICKUP -> uiState.pickupSuggestions
-            AddressFieldType.DROP -> uiState.dropSuggestions
-            else -> emptyList()
-        },
-        onSuggestionSelected = onSuggestionSelected
-    )
+    // Show the input section if pickup or drop is not selected
+    if (uiState.pickupLocation == null || uiState.dropLocation == null || uiState.routePolyline.isEmpty()) {
+        // Show address input section when locations are not selected yet
+        RideInputSection(
+            pickupText = pickupInput,
+            dropText = dropInput,
+            onPickupChange = onPickupChange,
+            onDropChange = onDropChange,
+            onFieldFocusChanged = onFieldFocusChanged,
+            suggestions = when (uiState.focusedField) {
+                AddressFieldType.PICKUP -> uiState.pickupSuggestions
+                AddressFieldType.DROP -> uiState.dropSuggestions
+                else -> emptyList()
+            },
+            onSuggestionSelected = onSuggestionSelected
+        )
+    } else {
+        RideDetailSection(
+            uiState = uiState,
+            onVehicleSelected = { onVehicleSelected(it) },
+            onBookRide = {  }
+        )
+    }
 }

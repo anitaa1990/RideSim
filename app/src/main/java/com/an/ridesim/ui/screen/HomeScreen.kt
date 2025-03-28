@@ -166,7 +166,8 @@ fun HomeScreen(
                     viewModel.selectPlace(prediction.placeId, isPickup)
                     viewModel.updateFocusedField(AddressFieldType.NONE)
                     focusManager.clearFocus()
-                }
+                },
+                onVehicleSelected = { viewModel.updateVehicleType(it) }
             )
         }
     ) {
