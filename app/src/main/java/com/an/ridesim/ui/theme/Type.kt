@@ -14,7 +14,8 @@ val FigTreeFontFamily = FontFamily(
     Font(R.font.figtree_regular, weight = FontWeight.Normal),
     Font(R.font.figtree_medium, weight = FontWeight.Medium),
     Font(R.font.figtree_bold, weight = FontWeight.Bold),
-    Font(R.font.figtree_black, weight = FontWeight.Black)
+    Font(R.font.figtree_black, weight = FontWeight.Black),
+    Font(R.font.figtree_semibold, weight = FontWeight.SemiBold)
 )
 
 val Typography = Typography(
@@ -30,6 +31,14 @@ val Typography = Typography(
         fontFamily = FigTreeFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 15.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.5.sp,
+        color = Color(0xFF202124)
+    ),
+    labelLarge = TextStyle(
+        fontFamily = FigTreeFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 17.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.5.sp,
         color = Color(0xFF202124)

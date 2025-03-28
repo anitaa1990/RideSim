@@ -23,17 +23,27 @@ fun RideBottomSheetContent(
     onFieldFocusChanged: (AddressFieldType) -> Unit,
     onSuggestionSelected: (AutocompletePrediction) -> Unit
 ) {
-    RideInputSection(
-        pickupText = pickupInput,
-        dropText = dropInput,
-        onPickupChange = onPickupChange,
-        onDropChange = onDropChange,
-        onFieldFocusChanged = onFieldFocusChanged,
-        suggestions = when (uiState.focusedField) {
-            AddressFieldType.PICKUP -> uiState.pickupSuggestions
-            AddressFieldType.DROP -> uiState.dropSuggestions
-            else -> emptyList()
-        },
-        onSuggestionSelected = onSuggestionSelected
-    )
+    // Show the input section if pickup or drop is not selected
+    if (uiState.pickupLocation == null || uiState.dropLocation == null || uiState.routePolyline.isEmpty()) {
+        // Show address input section when locations are not selected yet
+        RideInputSection(
+            pickupText = pickupInput,
+            dropText = dropInput,
+            onPickupChange = onPickupChange,
+            onDropChange = onDropChange,
+            onFieldFocusChanged = onFieldFocusChanged,
+            suggestions = when (uiState.focusedField) {
+                AddressFieldType.PICKUP -> uiState.pickupSuggestions
+                AddressFieldType.DROP -> uiState.dropSuggestions
+                else -> emptyList()
+            },
+            onSuggestionSelected = onSuggestionSelected
+        )
+    } else {
+        RideDetailSection(
+            uiState = uiState,
+            onVehicleSelected = {  },
+            onBookRide = {  }
+        )
+    }
 }

@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.an.ridesim.R
 
 /**
  * [RideViewModel] manages all business logic and UI state for the RideSim app.
@@ -157,7 +158,7 @@ class RideViewModel @Inject constructor(
                         )
                     }
 
-                    // 🚀 Now compute fare on UI thread (cheap)
+                    // Now compute fare on UI thread
                     calculateFare()
                 }
             } catch (e: Exception) {
@@ -177,7 +178,10 @@ class RideViewModel @Inject constructor(
                 waitTimeInMinutes = state.durationInMinutes,
                 vehicleType = state.selectedVehicle
             )
-            _uiState.update { it.copy(estimatedFare = fare) }
+            _uiState.update { it.copy(
+                estimatedFare = fare,
+                availableVehicles = fetchVehicleDetails()
+            ) }
         }
     }
 
@@ -187,6 +191,71 @@ class RideViewModel @Inject constructor(
     fun updateVehicleType(vehicleType: VehicleType) {
         _uiState.update { it.copy(selectedVehicle = vehicleType) }
         calculateFare()
+    }
+
+    private fun fetchVehicleDetails(): List<VehicleDetail> {
+        return listOf(
+            VehicleDetail(
+                vehicleType = VehicleType.AUTO,
+                iconResId = R.drawable.ic_auto,
+                displayNameId = R.string.vehicle_auto_name,
+                descriptionId = R.string.vehicle_auto_desc,
+                peopleCount = R.string.vehicle_auto_count,
+                price = FareCalculator.calculateFare(
+                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    vehicleType = VehicleType.AUTO
+                ).toDouble()
+            ),
+            VehicleDetail(
+                vehicleType = VehicleType.AC_MINI,
+                iconResId = R.drawable.ic_mini,
+                displayNameId = R.string.vehicle_mini_name,
+                descriptionId = R.string.vehicle_mini_desc,
+                peopleCount = R.string.vehicle_mini_count,
+                price = FareCalculator.calculateFare(
+                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    vehicleType = VehicleType.AC_MINI
+                ).toDouble()
+            ),
+            VehicleDetail(
+                vehicleType = VehicleType.SEDAN,
+                iconResId = R.drawable.ic_sedan,
+                displayNameId = R.string.vehicle_sedan_name,
+                descriptionId = R.string.vehicle_sedan_desc,
+                peopleCount = R.string.vehicle_sedan_count,
+                price = FareCalculator.calculateFare(
+                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    vehicleType = VehicleType.SEDAN
+                ).toDouble()
+            ),
+            VehicleDetail(
+                vehicleType = VehicleType.SUV,
+                iconResId = R.drawable.ic_suv,
+                displayNameId = R.string.vehicle_suv_name,
+                descriptionId = R.string.vehicle_suv_desc,
+                peopleCount = R.string.vehicle_suv_count,
+                price = FareCalculator.calculateFare(
+                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    vehicleType = VehicleType.SUV
+                ).toDouble()
+            ),
+            VehicleDetail(
+                vehicleType = VehicleType.SUV_PLUS,
+                iconResId = R.drawable.ic_suv_plus,
+                displayNameId = R.string.vehicle_suv_plus_name,
+                descriptionId = R.string.vehicle_suv_plus_desc,
+                peopleCount = R.string.vehicle_suv_plus_count,
+                price = FareCalculator.calculateFare(
+                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    vehicleType = VehicleType.SUV_PLUS
+                ).toDouble()
+            )
+        )
     }
 
     /**
@@ -250,7 +319,8 @@ class RideViewModel @Inject constructor(
         val carPosition: LatLngPoint? = null,
         val locationError: String? = null,
         val routeError: String? = null,
-        val focusedField: AddressFieldType = AddressFieldType.NONE
+        val focusedField: AddressFieldType = AddressFieldType.NONE,
+        val availableVehicles: List<VehicleDetail> = emptyList()
     )
 }
 
