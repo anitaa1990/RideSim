@@ -1,14 +1,15 @@
 package com.an.ridesim.ui.component
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.an.ridesim.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun BookRideButton(
@@ -38,6 +40,7 @@ fun BookRideButton(
     var boxWidthPx by remember { mutableIntStateOf(0) } // Width of the entire Box
     var sliderComplete by remember { mutableStateOf(false) } // To detect when slider reaches the right end
     var showLoading by remember { mutableStateOf(false) } // To show the loading indicator
+    var showLoadingIndicator by remember { mutableStateOf(false) }
 
     // Calculate drag progress (0f to 1f)
     val dragProgress = remember(sliderPositionPx, boxWidthPx) {
@@ -51,17 +54,26 @@ fun BookRideButton(
     // Text Transition
     val textAlpha = 1f - dragProgress
 
-    // Animate the scale of the button when slider reaches the right end
+    // Scale the track (button) based on progress
     val trackScale by animateFloatAsState(
-        targetValue = if (sliderComplete) 0f else 1f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 300), label = "",
+        targetValue = if (sliderComplete) 0f else 1f, // Shrink after 75% progress
+        animationSpec = tween(durationMillis = 300), label = "",
     )
 
     // Animate thumb disappearance
     val thumbAlpha by animateFloatAsState(
         targetValue = if (sliderComplete) 0f else 1f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 300), label = "",
+        animationSpec = tween(durationMillis = 300), label = "",
     )
+
+    // Trigger slider completion as soon as the drag progress exceeds 80%
+    LaunchedEffect(dragProgress) {
+        if (dragProgress >= 0.8f && !sliderComplete) {
+            sliderComplete = true
+            showLoading = true
+//            onBookRide()  // Complete the slider when it reaches 80%
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -105,13 +117,13 @@ fun BookRideButton(
                     orientation = Orientation.Horizontal,
                     onDragStarted = {},
                     onDragStopped = {
-                        // Detect when the slider reaches the right end
-                        if (dragProgress >= 0.99f) {
-                            sliderComplete = true
-                            onBookRide()
-                            // Start showing the loading spinner after slider reaches the end
-                            showLoading = true
-                        }
+//                        // Detect when the slider reaches the right end
+//                        if (dragProgress >= 0.85f) {
+//                            sliderComplete = true
+//                            onBookRide()
+//                            // Start showing the loading spinner after slider reaches the end
+//                            showLoading = true
+//                        }
                     }
                 ),
             verticalAlignment = Alignment.CenterVertically
@@ -130,11 +142,23 @@ fun BookRideButton(
 
         // Show the loading indicator after the slider reaches the end and the animation completes
         if (showLoading) {
-            CircularProgressIndicator(
-                color = Color.Black,
-                strokeWidth = 3.dp,
-                modifier = Modifier.align(Alignment.Center)
-            )
+            // Delay the loading indicator by 1 second
+            LaunchedEffect(Unit) {
+                delay(300)
+                showLoadingIndicator = true // Show the loading indicator after 300ms
+            }
+            Box(
+                modifier = Modifier
+                    .size(55.dp)
+                    .align(Alignment.Center)
+                    .background(color = Color.Black, shape = CircleShape)
+            ) {
+                if (showLoadingIndicator) {
+                    CustomLoadingIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
         }
     }
 }
