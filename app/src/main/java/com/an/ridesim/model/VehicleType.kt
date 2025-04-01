@@ -13,6 +13,7 @@ enum class VehicleType {
 data class VehicleDetail(
     val vehicleType: VehicleType,
     val iconResId: Int,
+    val markerIconResId: Int,
     val displayNameId: Int,
     val descriptionId: Int,
     val peopleCount: Int,
@@ -22,6 +23,7 @@ data class VehicleDetail(
         fun getAuto() = VehicleDetail(
             vehicleType = VehicleType.AUTO,
             iconResId = R.drawable.ic_auto,
+            markerIconResId = R.drawable.ic_marker_auto,
             displayNameId = R.string.vehicle_auto_name,
             descriptionId = R.string.vehicle_auto_desc,
             peopleCount = R.string.vehicle_auto_count
@@ -30,6 +32,7 @@ data class VehicleDetail(
         fun getMini() = VehicleDetail(
             vehicleType = VehicleType.AC_MINI,
             iconResId = R.drawable.ic_mini,
+            markerIconResId = R.drawable.ic_marker_mini,
             displayNameId = R.string.vehicle_mini_name,
             descriptionId = R.string.vehicle_mini_desc,
             peopleCount = R.string.vehicle_mini_count
@@ -38,6 +41,7 @@ data class VehicleDetail(
         fun getSedan() = VehicleDetail(
             vehicleType = VehicleType.SEDAN,
             iconResId = R.drawable.ic_sedan,
+            markerIconResId = R.drawable.ic_marker_sedan,
             displayNameId = R.string.vehicle_sedan_name,
             descriptionId = R.string.vehicle_sedan_desc,
             peopleCount = R.string.vehicle_sedan_count
@@ -46,6 +50,7 @@ data class VehicleDetail(
         fun getSUV() = VehicleDetail(
             vehicleType = VehicleType.SUV,
             iconResId = R.drawable.ic_suv,
+            markerIconResId = R.drawable.ic_marker_suv,
             displayNameId = R.string.vehicle_suv_name,
             descriptionId = R.string.vehicle_suv_desc,
             peopleCount = R.string.vehicle_suv_count
@@ -54,6 +59,7 @@ data class VehicleDetail(
         fun getSUVPlus() = VehicleDetail(
             vehicleType = VehicleType.SUV_PLUS,
             iconResId = R.drawable.ic_suv_plus,
+            markerIconResId = R.drawable.ic_marker_suv_plus,
             displayNameId = R.string.vehicle_suv_plus_name,
             descriptionId = R.string.vehicle_suv_plus_desc,
             peopleCount = R.string.vehicle_suv_plus_count
