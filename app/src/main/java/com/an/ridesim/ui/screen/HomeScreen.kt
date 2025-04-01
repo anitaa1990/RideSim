@@ -193,7 +193,7 @@ fun HomeScreen(
                 modifier = Modifier.align(Alignment.BottomCenter)
                     .fillMaxWidth()
             ) {
-                BookRideSection(191.0) { }
+                BookRideSection(191.0) { viewModel.startRideSimulation() }
             }
         }
     }
