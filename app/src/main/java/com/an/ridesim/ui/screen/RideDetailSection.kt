@@ -32,13 +32,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.an.ridesim.R
 import com.an.ridesim.model.VehicleDetail
-import com.an.ridesim.model.VehicleType
 import com.an.ridesim.ui.viewmodel.RideViewModel.RideUiState
 
 @Composable
 fun RideDetailSection(
     uiState: RideUiState,
-    onVehicleSelected: (VehicleType) -> Unit,
+    onVehicleSelected: (VehicleDetail) -> Unit,
     onBookRide: () -> Unit
 ) {
     val vehicleList = uiState.availableVehicles
@@ -68,8 +67,8 @@ fun RideDetailSection(
             val vehicle = vehicleList[index]
             VehicleListItem(
                 vehicle = vehicle,
-                isSelected = uiState.selectedVehicle == vehicle.vehicleType,
-                onClick = { onVehicleSelected(vehicle.vehicleType) }
+                isSelected = uiState.selectedVehicle == vehicle,
+                onClick = { onVehicleSelected(vehicle) }
             )
         }
     }

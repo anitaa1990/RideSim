@@ -132,7 +132,7 @@ class RideViewModelTest {
     }
 
     @Test
-    fun `updateVehicleType updates selected vehicle and fare`() = runTest {
+    fun `updateSelectedVehicle updates selected vehicle and fare`() = runTest {
         val latLng = LatLng(13.0, 80.0)
         whenever(placesRepository.resolvePlaceId(any())).thenReturn(Pair(latLng, "Address"))
         whenever(routeRepository.getRoute(any(), any())).thenReturn(
@@ -143,13 +143,13 @@ class RideViewModelTest {
         viewModel.selectPlace("drop", isPickup = false)
         runCurrent()
 
-        viewModel.updateVehicleType(VehicleType.SEDAN)
+        viewModel.updateSelectedVehicle(VehicleDetail.getSedan())
 
         // Fare gets calculated in the same coroutine
         runCurrent()
 
         val state = viewModel.uiState.value
-        assertEquals(VehicleType.SEDAN, state.selectedVehicle)
+        assertEquals(VehicleType.SEDAN, state.selectedVehicle.vehicleType)
         assertNotNull(state.estimatedFare)
     }
 

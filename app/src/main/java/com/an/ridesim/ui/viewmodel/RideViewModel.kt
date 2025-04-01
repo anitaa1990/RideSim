@@ -1,14 +1,14 @@
 package com.an.ridesim.ui.viewmodel
 
-import com.an.ridesim.data.PlacesRepository
-import com.an.ridesim.data.RouteRepository
-import com.google.android.libraries.places.api.model.AutocompletePrediction
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.an.ridesim.data.PlacesRepository
+import com.an.ridesim.data.RouteRepository
 import com.an.ridesim.model.*
 import com.an.ridesim.util.FareCalculator
 import com.an.ridesim.util.LocationUtils
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.model.AutocompletePrediction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import com.an.ridesim.R
 
 /**
  * [RideViewModel] manages all business logic and UI state for the RideSim app.
@@ -176,7 +175,7 @@ class RideViewModel @Inject constructor(
             val fare = FareCalculator.calculateFare(
                 distanceInKm = state.distanceInKm,
                 waitTimeInMinutes = state.durationInMinutes,
-                vehicleType = state.selectedVehicle
+                vehicleType = state.selectedVehicle.vehicleType
             )
             _uiState.update { it.copy(
                 estimatedFare = fare,
@@ -188,67 +187,42 @@ class RideViewModel @Inject constructor(
     /**
      * Updates the selected vehicle type and triggers a fare recalculation.
      */
-    fun updateVehicleType(vehicleType: VehicleType) {
-        _uiState.update { it.copy(selectedVehicle = vehicleType) }
+    fun updateSelectedVehicle(selectedVehicle: VehicleDetail) {
+        _uiState.update { it.copy(selectedVehicle = selectedVehicle) }
         calculateFare()
     }
 
     private fun fetchVehicleDetails(): List<VehicleDetail> {
         return listOf(
-            VehicleDetail(
-                vehicleType = VehicleType.AUTO,
-                iconResId = R.drawable.ic_auto,
-                displayNameId = R.string.vehicle_auto_name,
-                descriptionId = R.string.vehicle_auto_desc,
-                peopleCount = R.string.vehicle_auto_count,
+            VehicleDetail.getAuto().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
                     vehicleType = VehicleType.AUTO
                 ).toDouble()
             ),
-            VehicleDetail(
-                vehicleType = VehicleType.AC_MINI,
-                iconResId = R.drawable.ic_mini,
-                displayNameId = R.string.vehicle_mini_name,
-                descriptionId = R.string.vehicle_mini_desc,
-                peopleCount = R.string.vehicle_mini_count,
+            VehicleDetail.getMini().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
                     vehicleType = VehicleType.AC_MINI
                 ).toDouble()
             ),
-            VehicleDetail(
-                vehicleType = VehicleType.SEDAN,
-                iconResId = R.drawable.ic_sedan,
-                displayNameId = R.string.vehicle_sedan_name,
-                descriptionId = R.string.vehicle_sedan_desc,
-                peopleCount = R.string.vehicle_sedan_count,
+            VehicleDetail.getSedan().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
                     vehicleType = VehicleType.SEDAN
                 ).toDouble()
             ),
-            VehicleDetail(
-                vehicleType = VehicleType.SUV,
-                iconResId = R.drawable.ic_suv,
-                displayNameId = R.string.vehicle_suv_name,
-                descriptionId = R.string.vehicle_suv_desc,
-                peopleCount = R.string.vehicle_suv_count,
+            VehicleDetail.getSUV().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
                     vehicleType = VehicleType.SUV
                 ).toDouble()
             ),
-            VehicleDetail(
-                vehicleType = VehicleType.SUV_PLUS,
-                iconResId = R.drawable.ic_suv_plus,
-                displayNameId = R.string.vehicle_suv_plus_name,
-                descriptionId = R.string.vehicle_suv_plus_desc,
-                peopleCount = R.string.vehicle_suv_plus_count,
+            VehicleDetail.getSUVPlus().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
@@ -310,7 +284,7 @@ class RideViewModel @Inject constructor(
         val dropLocation: LatLngPoint? = null,
         val pickupSuggestions: List<AutocompletePrediction> = emptyList(),
         val dropSuggestions: List<AutocompletePrediction> = emptyList(),
-        val selectedVehicle: VehicleType = VehicleType.AUTO,
+        val selectedVehicle: VehicleDetail = VehicleDetail.getAuto(),
         val estimatedFare: Int? = null,
         val distanceInKm: Double? = null,
         val durationInMinutes: Int? = null,

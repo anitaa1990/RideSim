@@ -173,7 +173,7 @@ fun HomeScreen(
                         viewModel.updateFocusedField(AddressFieldType.NONE)
                         focusManager.clearFocus()
                     },
-                    onVehicleSelected = { viewModel.updateVehicleType(it) }
+                    onVehicleSelected = { viewModel.updateSelectedVehicle(it) }
                 )
             }
         ) {
