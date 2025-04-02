@@ -22,3 +22,5 @@ fun TripState.peekHeight() = when (this) {
     TripState.IDLE  -> 0.5f
     TripState.DRIVER_ARRIVING, TripState.ON_TRIP, TripState.COMPLETED -> 0.4f
 }
+
+fun TripState.shouldFollowCar() = this == TripState.DRIVER_ARRIVING || this == TripState.ON_TRIP

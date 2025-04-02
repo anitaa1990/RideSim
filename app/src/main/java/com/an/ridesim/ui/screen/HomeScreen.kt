@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.ridesim.model.LatLngPoint
 import com.an.ridesim.model.TripState
 import com.an.ridesim.model.peekHeight
+import com.an.ridesim.model.shouldFollowCar
 import com.an.ridesim.model.toLatLng
 import com.an.ridesim.ui.component.GoogleMapView
 import com.an.ridesim.ui.viewmodel.AddressFieldType
@@ -94,18 +95,6 @@ fun HomeScreen(
                         durationMs = 1000
                     )
                 }
-            }
-            TripState.DRIVER_ARRIVING -> {
-                // When the driver is arriving, zoom between the driver location and the pickup location
-                val driverPosition = uiState.carPosition
-                val pickup = uiState.pickupLocation
-                zoom(driverPosition, pickup, cameraPositionState, 400)
-            }
-            TripState.ON_TRIP -> {
-                // When the driver is on the trip, follow the vehicle's movement and keep the drop location in view
-                val driverPosition = uiState.carPosition
-                val drop = uiState.dropLocation
-                zoom(driverPosition, drop, cameraPositionState, 200)
             }
             else -> { }
         }
@@ -183,6 +172,16 @@ fun HomeScreen(
                 selectedVehicle = uiState.selectedVehicle,
                 carRotation = uiState.carRotation
             )
+            LaunchedEffect(uiState.carPosition) {
+                if (uiState.tripState.shouldFollowCar()) {
+                    uiState.carPosition?.let { carLatLng ->
+                        cameraPositionState.animate(
+                            update = CameraUpdateFactory.newLatLng(carLatLng.toLatLng()),
+                            durationMs = 180
+                        )
+                    }
+                }
+            }
         }
 
         if (uiState.isRideBookingReady()) {
