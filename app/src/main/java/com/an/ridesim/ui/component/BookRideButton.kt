@@ -68,10 +68,11 @@ fun BookRideButton(
 
     // Trigger slider completion as soon as the drag progress exceeds 80%
     LaunchedEffect(dragProgress) {
+        // Complete the slider when it reaches 80%
         if (dragProgress >= 0.8f && !sliderComplete) {
             sliderComplete = true
             showLoading = true
-//            onBookRide()  // Complete the slider when it reaches 80%
+            onBookRide()
         }
     }
 
@@ -116,15 +117,7 @@ fun BookRideButton(
                     },
                     orientation = Orientation.Horizontal,
                     onDragStarted = {},
-                    onDragStopped = {
-//                        // Detect when the slider reaches the right end
-//                        if (dragProgress >= 0.85f) {
-//                            sliderComplete = true
-//                            onBookRide()
-//                            // Start showing the loading spinner after slider reaches the end
-//                            showLoading = true
-//                        }
-                    }
+                    onDragStopped = {}
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {

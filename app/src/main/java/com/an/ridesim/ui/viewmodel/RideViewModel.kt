@@ -1,14 +1,15 @@
 package com.an.ridesim.ui.viewmodel
 
-import com.an.ridesim.data.PlacesRepository
-import com.an.ridesim.data.RouteRepository
-import com.google.android.libraries.places.api.model.AutocompletePrediction
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.an.ridesim.data.PlacesRepository
+import com.an.ridesim.data.RouteRepository
 import com.an.ridesim.model.*
 import com.an.ridesim.util.FareCalculator
 import com.an.ridesim.util.LocationUtils
+import com.an.ridesim.util.MapUtils
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.model.AutocompletePrediction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +18,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import com.an.ridesim.R
 
 /**
  * [RideViewModel] manages all business logic and UI state for the RideSim app.
@@ -176,7 +176,7 @@ class RideViewModel @Inject constructor(
             val fare = FareCalculator.calculateFare(
                 distanceInKm = state.distanceInKm,
                 waitTimeInMinutes = state.durationInMinutes,
-                vehicleType = state.selectedVehicle
+                vehicleType = state.selectedVehicle.vehicleType
             )
             _uiState.update { it.copy(
                 estimatedFare = fare,
@@ -188,67 +188,42 @@ class RideViewModel @Inject constructor(
     /**
      * Updates the selected vehicle type and triggers a fare recalculation.
      */
-    fun updateVehicleType(vehicleType: VehicleType) {
-        _uiState.update { it.copy(selectedVehicle = vehicleType) }
+    fun updateSelectedVehicle(selectedVehicle: VehicleDetail) {
+        _uiState.update { it.copy(selectedVehicle = selectedVehicle) }
         calculateFare()
     }
 
     private fun fetchVehicleDetails(): List<VehicleDetail> {
         return listOf(
-            VehicleDetail(
-                vehicleType = VehicleType.AUTO,
-                iconResId = R.drawable.ic_auto,
-                displayNameId = R.string.vehicle_auto_name,
-                descriptionId = R.string.vehicle_auto_desc,
-                peopleCount = R.string.vehicle_auto_count,
+            VehicleDetail.getAuto().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
                     vehicleType = VehicleType.AUTO
                 ).toDouble()
             ),
-            VehicleDetail(
-                vehicleType = VehicleType.AC_MINI,
-                iconResId = R.drawable.ic_mini,
-                displayNameId = R.string.vehicle_mini_name,
-                descriptionId = R.string.vehicle_mini_desc,
-                peopleCount = R.string.vehicle_mini_count,
+            VehicleDetail.getMini().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
                     vehicleType = VehicleType.AC_MINI
                 ).toDouble()
             ),
-            VehicleDetail(
-                vehicleType = VehicleType.SEDAN,
-                iconResId = R.drawable.ic_sedan,
-                displayNameId = R.string.vehicle_sedan_name,
-                descriptionId = R.string.vehicle_sedan_desc,
-                peopleCount = R.string.vehicle_sedan_count,
+            VehicleDetail.getSedan().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
                     vehicleType = VehicleType.SEDAN
                 ).toDouble()
             ),
-            VehicleDetail(
-                vehicleType = VehicleType.SUV,
-                iconResId = R.drawable.ic_suv,
-                displayNameId = R.string.vehicle_suv_name,
-                descriptionId = R.string.vehicle_suv_desc,
-                peopleCount = R.string.vehicle_suv_count,
+            VehicleDetail.getSUV().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
                     vehicleType = VehicleType.SUV
                 ).toDouble()
             ),
-            VehicleDetail(
-                vehicleType = VehicleType.SUV_PLUS,
-                iconResId = R.drawable.ic_suv_plus,
-                displayNameId = R.string.vehicle_suv_plus_name,
-                descriptionId = R.string.vehicle_suv_plus_desc,
-                peopleCount = R.string.vehicle_suv_plus_count,
+            VehicleDetail.getSUVPlus().copy(
                 price = FareCalculator.calculateFare(
                     distanceInKm = _uiState.value.distanceInKm ?: 0.0,
                     waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
@@ -259,29 +234,78 @@ class RideViewModel @Inject constructor(
     }
 
     /**
-     * Starts the trip simulation flow:
-     * - DRIVER_ARRIVING
-     * - ON_TRIP
-     * - COMPLETED
-     *
-     * Animates the car position along the polyline.
+     * Simulates the ride from the initial random start point to the pickup location, and then
+     * from the pickup location to the drop location. The simulation updates the trip state and
+     * vehicle position on the map. The trip state changes as the vehicle moves through different
+     * stages: DRIVER_ARRIVING, ON_TRIP, and COMPLETED.
      */
     fun startRideSimulation() {
         viewModelScope.launch {
+            // Step 1: Start the trip with the DRIVER_ARRIVING state
             _uiState.update { it.copy(tripState = TripState.DRIVER_ARRIVING) }
 
-            delay(3000)
+            // Step 2: Randomly set initial position (within 1-2km of the pickup location)
+            // This sets the initial random location for the vehicle within a defined distance range
+            val pickup = _uiState.value.pickupLocation ?: return@launch
+            val randomStartPoint = MapUtils.generateRandomStartPoint(pickup, 1000.0, 2000.0)
+            _uiState.update { it.copy(carPosition = randomStartPoint) }
 
-            _uiState.update { it.copy(tripState = TripState.ON_TRIP) }
+            // Step 3: Calculate the route from the random starting point to the pickup location
+            // The updateRouteInfo method will fetch and set the route between start and pickup
+            updateRouteInfo(randomStartPoint, pickup)
 
-            val path = _uiState.value.routePolyline
-            for (point in path) {
-                delay(500)
-                _uiState.update { it.copy(carPosition = LatLngPoint(point.latitude, point.longitude)) }
+            // Step 4: Simulate vehicle movement from the random start point to the pickup location.
+            // This function updates the car's position and polyline during the movement
+            simulateVehicleMovement()
+
+            // Initialize the polyline correctly from the driver's initial position to the
+            // pickup location. Ensure that the polyline is set correctly the first time with
+            // the initial vehicle position
+            val driverStart = _uiState.value.carPosition ?: return@launch
+
+            // Set the initial polyline from the driver's location to the pickup location
+            if (_uiState.value.routePolyline.isEmpty()) {
+                // Create the initial polyline between the driver's location and pickup location
+                val initialPolyline = listOf(
+                    LatLng(driverStart.latitude, driverStart.longitude),
+                    LatLng(pickup.latitude, pickup.longitude)
+                )
+
+                // Update the routePolyline in the state
+                _uiState.update { it.copy(routePolyline = initialPolyline) }
             }
 
-            _uiState.update {
-                it.copy(tripState = TripState.COMPLETED, carPosition = null)
+
+            // Step 5: Once the driver arrives at the pickup, change the trip state to ON_TRIP
+            // After the vehicle reaches the pickup location, the trip transitions to the
+            // "ON_TRIP" state
+            _uiState.update { it.copy(tripState = TripState.ON_TRIP) }
+
+            // Step 6: Now simulate the trip from the pickup location to the drop location
+            // // Ensure drop location is available
+            val drop = _uiState.value.dropLocation ?: return@launch
+
+            // Fetch and update the route between pickup and drop
+            updateRouteInfo(pickup, drop)
+
+            // Step 7: Simulate vehicle movement from the pickup to the drop location
+            // Update vehicle's position and polyline during the trip to the drop
+            simulateVehicleMovement()
+
+            // Step 8: Once the vehicle has arrived at the drop-off location,
+            // update the trip state to COMPLETED. Get the final point on the route
+            val finalPoint = _uiState.value.routePolyline.last().toLatLngPoint()
+
+            // Calculate the distance to the drop-off location
+            val distanceToDrop = locationUtils.calculateHaversineDistance(finalPoint, drop)
+
+            // If the vehicle is within 50 meters of the drop-off location,
+            // mark the trip as completed
+            if (distanceToDrop < 50) {  // If within 100 meters of drop location
+                _uiState.update {
+                    // Update the trip state to COMPLETED
+                    it.copy(tripState = TripState.COMPLETED)
+                }
             }
         }
     }
@@ -300,6 +324,109 @@ class RideViewModel @Inject constructor(
     }
 
     /**
+     * Calculates and updates the route (polyline) between the pickup and drop-off locations.
+     * The method fetches the route from the route repository and updates the routePolyline
+     * in the UI state, which is used to display the path on the map.
+     *
+     * @param pickup The pickup location represented as a [LatLngPoint].
+     * @param drop The drop-off location represented as a [LatLngPoint].
+     *
+     */
+    private suspend fun updateRouteInfo(
+        pickup: LatLngPoint,
+        drop: LatLngPoint
+    ) {
+        // Fetch the route information from the repository between the pickup and drop locations
+        val routeResultTrip = withContext(dispatcher) {
+            // Convert the route points to a list of [LatLng] to represent the polyline
+            routeRepository.getRoute(pickup.toLatLng(), drop.toLatLng())
+        }
+
+        // Update the UI state with the new polyline for rendering on the map.
+        routeResultTrip?.let {
+            val pickupToDropPolyline = it.routePoints.map { pt ->
+                LatLng(pt.latitude, pt.longitude)
+            }
+            _uiState.update { it.copy(routePolyline = pickupToDropPolyline) }
+        }
+    }
+
+    /**
+     * Simulates the vehicle's movement along the route polyline with smooth interpolation
+     * and rotation.
+     *
+     * This method animates the car marker along the list of coordinates in `routePolyline`
+     * to simulate real-time driving. It also interpolates the car's bearing (rotation) and applies
+     * easing curves to ensure natural motion, mimicking real ride-hailing apps like Uber or Ola.
+     */
+    private suspend fun simulateVehicleMovement() {
+        val path = _uiState.value.routePolyline
+
+        // Cannot simulate with less than 2 points
+        if (path.size < 2) return
+
+        var currentIndexTrip = 0
+
+        // Loop through each consecutive pair of points in the route
+        for (i in 0 until path.lastIndex) {
+            val start = path[i]
+            val end = path[i + 1]
+
+            val startPoint = LatLngPoint(start.latitude, start.longitude)
+            val endPoint = LatLngPoint(end.latitude, end.longitude)
+
+            // Current rotation of the vehicle; default to 0° if null
+            val startRotation = _uiState.value.carRotation ?: 0f
+
+            // Target rotation states the bearing from start to end in degrees
+            val targetRotation = MapUtils.computeBearing(startPoint, endPoint)
+
+            // Calculate distance of this segment to dynamically determine animation speed
+            val distanceMeters = locationUtils.calculateHaversineDistance(startPoint, endPoint)
+
+            // Simulated time to cover this segment (assuming ~40 km/h speed)
+            val durationMs = ((distanceMeters / 1000.0) / 40.0) * 3600_000
+
+            // We'll break this segment into N steps for smooth interpolation
+            val steps = 30
+            val stepDuration = (durationMs / steps).coerceIn(10.0, 100.0).toLong()
+
+            // Interpolate car position + bearing across the steps
+            for (step in 1..steps) {
+                val t = step.toFloat() / steps
+
+                // Apply easing function for smoothness
+                val easedT = MapUtils.EaseInOutCubic(t)
+
+                // Interpolated position (lat/lng) between start and end
+                val lat = start.latitude + (end.latitude - start.latitude) * easedT
+                val lng = start.longitude + (end.longitude - start.longitude) * easedT
+
+                // Interpolated rotation between start and target
+                val interpolatedRotation = MapUtils.lerpAngle(startRotation, targetRotation, easedT)
+
+                // Update the UI state with new car position and rotation
+                _uiState.update {
+                    it.copy(
+                        carPosition = LatLngPoint(lat, lng),
+                        carRotation = interpolatedRotation
+                    )
+                }
+
+                // Wait before next frame to simulate smooth animation
+                delay(stepDuration)
+            }
+
+            // Remove the segment that was just traversed to shrink the remaining route
+            if (i > currentIndexTrip) {
+                val updatedPolyline = path.subList(i + 1, path.size)
+                _uiState.update { it.copy(routePolyline = updatedPolyline) }
+                currentIndexTrip = i
+            }
+        }
+    }
+
+    /**
      * Full UI state for the RideSim screen.
      */
     data class RideUiState(
@@ -310,7 +437,7 @@ class RideViewModel @Inject constructor(
         val dropLocation: LatLngPoint? = null,
         val pickupSuggestions: List<AutocompletePrediction> = emptyList(),
         val dropSuggestions: List<AutocompletePrediction> = emptyList(),
-        val selectedVehicle: VehicleType = VehicleType.AUTO,
+        val selectedVehicle: VehicleDetail = VehicleDetail.getAuto(),
         val estimatedFare: Int? = null,
         val distanceInKm: Double? = null,
         val durationInMinutes: Int? = null,
@@ -320,7 +447,8 @@ class RideViewModel @Inject constructor(
         val locationError: String? = null,
         val routeError: String? = null,
         val focusedField: AddressFieldType = AddressFieldType.NONE,
-        val availableVehicles: List<VehicleDetail> = emptyList()
+        val availableVehicles: List<VehicleDetail> = emptyList(),
+        val carRotation: Float? = null
     ) {
         fun isRideBookingReady() = tripState == TripState.IDLE &&
                 pickupLocation != null
