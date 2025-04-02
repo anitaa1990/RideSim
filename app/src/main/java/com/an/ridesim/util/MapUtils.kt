@@ -7,6 +7,7 @@ import androidx.core.graphics.drawable.toBitmap
 import com.an.ridesim.model.LatLngPoint
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -146,5 +147,69 @@ object MapUtils {
 
         // Return the new LatLngPoint as the randomly generated start point
         return LatLngPoint(newLat, newLon)
+    }
+
+    /**
+     * Computes the compass bearing (heading) in degrees from a start point to an end point.
+     *
+     * The bearing is the angle measured in the clockwise direction from north (0°) to the
+     * direction from the start point to the end point.
+     *
+     * @param start the starting location (latitude and longitude)
+     * @param end the target location to which the bearing is calculated
+     * @return bearing angle in degrees (0.0 to 360.0), where 0 = North, 90 = East, etc.
+     */
+    fun computeBearing(start: LatLngPoint, end: LatLngPoint): Float {
+        // Convert degrees to radians for trigonometric calculation
+        val startLat = Math.toRadians(start.latitude)
+        val startLng = Math.toRadians(start.longitude)
+        val endLat = Math.toRadians(end.latitude)
+        val endLng = Math.toRadians(end.longitude)
+
+        // Compute the difference in longitude
+        val dLng = endLng - startLng
+
+        // Calculate the X and Y components of the bearing angle
+        val y = sin(dLng) * cos(endLat)
+        val x = cos(startLat) * sin(endLat) - sin(startLat) * cos(endLat) * cos(dLng)
+
+        // Calculate the angle in radians and convert it to degrees
+        val bearing = Math.toDegrees(atan2(y, x))
+
+        // Normalize the angle to [0, 360)
+        return ((bearing + 360) % 360).toFloat()
+    }
+
+    /**
+     * Cubic easing function for smooth animation transitions.
+     *
+     * Provides a gradual start (ease-in), fast middle, and gradual stop (ease-out),
+     * which looks more natural than linear motion.
+     *
+     * @param t the normalized time or progress (range 0.0 to 1.0)
+     * @return eased value also in range [0, 1]
+     */
+    fun EaseInOutCubic(t: Float): Float {
+        return if (t < 0.5f) {
+            4 * t * t * t
+        } else {
+            1 - (-2 * t + 2).let { it * it * it } / 2
+        }
+    }
+
+    /**
+     * Linearly interpolates between two angles (in degrees), taking into account angle wrapping.
+     *
+     * Ensures that rotation is always in the shortest direction
+     * (e.g., from 350° to 10° goes through 0°, not 360°).
+     *
+     * @param start starting angle in degrees (0–360)
+     * @param end target angle in degrees (0–360)
+     * @param t progress value from 0.0 to 1.0
+     * @return interpolated angle in degrees (0–360)
+     */
+    fun lerpAngle(start: Float, end: Float, t: Float): Float {
+        val delta = ((((end - start) % 360) + 540) % 360) - 180
+        return (start + delta * t + 360) % 360
     }
 }

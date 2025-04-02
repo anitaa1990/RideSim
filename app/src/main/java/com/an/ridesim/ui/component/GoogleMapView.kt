@@ -26,6 +26,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.MarkerState.Companion.invoke
 import com.google.maps.android.compose.Polyline
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 
 @Composable
 fun GoogleMapView(
@@ -36,7 +37,8 @@ fun GoogleMapView(
     tripState: TripState,
     cameraPositionState: CameraPositionState,
     isPermissionGranted: Boolean,
-    selectedVehicle: VehicleDetail
+    selectedVehicle: VehicleDetail,
+    carRotation: Float?
 ) {
     val isGradientReversed = when (tripState) {
         TripState.DRIVER_ARRIVING -> true
@@ -90,9 +92,13 @@ fun GoogleMapView(
             val vehicleIcon = remember(selectedVehicle) {
                 MapUtils.getResizedIconWithAspectRatio(selectedVehicle.markerIconResId, context, 70)
             }
+            val carMarkerState = rememberUpdatedMarkerState(position = it.toLatLng())
             Marker(
-                state = MarkerState(position = it.toLatLng()),
-                icon = vehicleIcon
+                state = carMarkerState,
+                icon = vehicleIcon,
+                rotation = carRotation ?: 0f,
+                anchor = Offset(0.5f, 0.5f),
+                flat = true // required to rotate icon
             )
         }
 

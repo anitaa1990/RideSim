@@ -180,7 +180,8 @@ fun HomeScreen(
                 tripState = uiState.tripState,
                 cameraPositionState = cameraPositionState,
                 isPermissionGranted = uiState.isPermissionGranted,
-                selectedVehicle = uiState.selectedVehicle
+                selectedVehicle = uiState.selectedVehicle,
+                carRotation = uiState.carRotation
             )
         }
 

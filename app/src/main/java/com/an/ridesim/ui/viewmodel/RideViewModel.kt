@@ -352,30 +352,76 @@ class RideViewModel @Inject constructor(
     }
 
     /**
-     * Simulates the vehicle's movement along the route polyline.
-     * The method updates the vehicle's position on the map by iterating through the route polyline
-     * points. It also updates the polyline, removing segments that the vehicle has already crossed.
+     * Simulates the vehicle's movement along the route polyline with smooth interpolation
+     * and rotation.
      *
+     * This method animates the car marker along the list of coordinates in `routePolyline`
+     * to simulate real-time driving. It also interpolates the car's bearing (rotation) and applies
+     * easing curves to ensure natural motion, mimicking real ride-hailing apps like Uber or Ola.
      */
     private suspend fun simulateVehicleMovement() {
-        val driverPath = _uiState.value.routePolyline
+        val path = _uiState.value.routePolyline
+
+        // Cannot simulate with less than 2 points
+        if (path.size < 2) return
+
         var currentIndexTrip = 0
 
-        // Loop through the route points (driver path) to simulate the movement
-        for (i in driverPath.indices) {
-            // Introduce a delay between each movement to create a smooth animation effect
-            delay(500)
+        // Loop through each consecutive pair of points in the route
+        for (i in 0 until path.lastIndex) {
+            val start = path[i]
+            val end = path[i + 1]
 
-            // For each point in the route, update the vehicle's position on the map
-            val point = driverPath[i]
-            _uiState.update { it.copy(carPosition = LatLngPoint(point.latitude, point.longitude)) }
+            val startPoint = LatLngPoint(start.latitude, start.longitude)
+            val endPoint = LatLngPoint(end.latitude, end.longitude)
 
-            // Remove the polyline segments that the vehicle has already crossed,
-            // making the polyline dynamic
+            // Current rotation of the vehicle; default to 0° if null
+            val startRotation = _uiState.value.carRotation ?: 0f
+
+            // Target rotation states the bearing from start to end in degrees
+            val targetRotation = MapUtils.computeBearing(startPoint, endPoint)
+
+            // Calculate distance of this segment to dynamically determine animation speed
+            val distanceMeters = locationUtils.calculateHaversineDistance(startPoint, endPoint)
+
+            // Simulated time to cover this segment (assuming ~40 km/h speed)
+            val durationMs = ((distanceMeters / 1000.0) / 40.0) * 3600_000
+
+            // We'll break this segment into N steps for smooth interpolation
+            val steps = 30
+            val stepDuration = (durationMs / steps).coerceIn(10.0, 100.0).toLong()
+
+            // Interpolate car position + bearing across the steps
+            for (step in 1..steps) {
+                val t = step.toFloat() / steps
+
+                // Apply easing function for smoothness
+                val easedT = MapUtils.EaseInOutCubic(t)
+
+                // Interpolated position (lat/lng) between start and end
+                val lat = start.latitude + (end.latitude - start.latitude) * easedT
+                val lng = start.longitude + (end.longitude - start.longitude) * easedT
+
+                // Interpolated rotation between start and target
+                val interpolatedRotation = MapUtils.lerpAngle(startRotation, targetRotation, easedT)
+
+                // Update the UI state with new car position and rotation
+                _uiState.update {
+                    it.copy(
+                        carPosition = LatLngPoint(lat, lng),
+                        carRotation = interpolatedRotation
+                    )
+                }
+
+                // Wait before next frame to simulate smooth animation
+                delay(stepDuration)
+            }
+
+            // Remove the segment that was just traversed to shrink the remaining route
             if (i > currentIndexTrip) {
-                val updatedPolyline = driverPath.subList(i, driverPath.size)
+                val updatedPolyline = path.subList(i + 1, path.size)
                 _uiState.update { it.copy(routePolyline = updatedPolyline) }
-                currentIndexTrip = i  // Update the current index
+                currentIndexTrip = i
             }
         }
     }
@@ -401,7 +447,8 @@ class RideViewModel @Inject constructor(
         val locationError: String? = null,
         val routeError: String? = null,
         val focusedField: AddressFieldType = AddressFieldType.NONE,
-        val availableVehicles: List<VehicleDetail> = emptyList()
+        val availableVehicles: List<VehicleDetail> = emptyList(),
+        val carRotation: Float? = null
     ) {
         fun isRideBookingReady() = tripState == TripState.IDLE &&
                 pickupLocation != null
