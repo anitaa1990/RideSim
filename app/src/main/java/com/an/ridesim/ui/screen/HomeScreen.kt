@@ -31,9 +31,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.ridesim.R
 import com.an.ridesim.model.LatLngPoint
 import com.an.ridesim.model.TripState
+import com.an.ridesim.model.VehicleDetail
 import com.an.ridesim.model.toLatLng
 import com.an.ridesim.ui.viewmodel.AddressFieldType
 import com.an.ridesim.ui.viewmodel.RideViewModel
+import com.an.ridesim.util.MapUtils
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -184,7 +186,8 @@ fun HomeScreen(
                 routePolyline = uiState.routePolyline,
                 tripState = uiState.tripState,
                 cameraPositionState = cameraPositionState,
-                isPermissionGranted = uiState.isPermissionGranted
+                isPermissionGranted = uiState.isPermissionGranted,
+                selectedVehicle = uiState.selectedVehicle
             )
         }
 
@@ -207,7 +210,8 @@ fun GoogleMapView(
     routePolyline: List<LatLng>,
     tripState: TripState,
     cameraPositionState: CameraPositionState,
-    isPermissionGranted: Boolean
+    isPermissionGranted: Boolean,
+    selectedVehicle: VehicleDetail
 ) {
     val isGradientReversed = when (tripState) {
         TripState.DRIVER_ARRIVING -> true
@@ -257,10 +261,16 @@ fun GoogleMapView(
 
         // Marker: Moving car during simulation
         carPosition?.let {
-            Marker(state = MarkerState(position = it.toLatLng()))
+            // Get the vehicle marker icon based on the selected vehicle type
+            val vehicleIcon = remember(selectedVehicle) {
+                MapUtils.getResizedIconWithAspectRatio(selectedVehicle.markerIconResId, context, width = 70)
+            }
+            Marker(
+                state = MarkerState(position = it.toLatLng()),
+                icon = vehicleIcon
+            )
         }
 
-        // Polyline: Route between pickup & drop
         // Polyline: Route between pickup & drop
         if (routePolyline.size >= 2) {
             // Iterate over each segment between consecutive points in the polyline
@@ -274,7 +284,7 @@ fun GoogleMapView(
                 val adjustedFraction = if (isGradientReversed) 1f - fraction else fraction
 
                 // Interpolate the color for this segment based on its relative position
-                val color = lerpColor(
+                val color = MapUtils.lerpColor(
                     startColor = Color(0xFFFAC901).toArgb(), // Bright Yellow (Pickup end)
                     endColor = Color.Black.toArgb(),         // Black (Drop end)
                     fraction = adjustedFraction              // Adjusted to allow reversing
@@ -289,43 +299,4 @@ fun GoogleMapView(
             }
         }
     }
-}
-
-/**
- * Linearly interpolates (lerps) between two colors based on a given [fraction].
- * Used to create smooth gradients between a start and end color.
- *
- * @param startColor The ARGB color to start from (Int representation).
- * @param endColor The ARGB color to interpolate to (Int representation).
- * @param fraction A value between 0.0 and 1.0 representing interpolation progress.
- *                 0.0 = startColor, 1.0 = endColor, 0.5 = halfway blend.
- *
- * @return The interpolated color as a packed ARGB Int.
- */
-private fun lerpColor(startColor: Int, endColor: Int, fraction: Float): Int {
-    // Decompose startColor into alpha, red, green, blue (8-bit components)
-    val startA = (startColor shr 24) and 0xff // alpha
-    val startR = (startColor shr 16) and 0xff // red
-    val startG = (startColor shr 8) and 0xff  // green
-    val startB = startColor and 0xff          // blue
-
-    // Decompose endColor into alpha, red, green, blue (8-bit components)
-    val endA = (endColor shr 24) and 0xff
-    val endR = (endColor shr 16) and 0xff
-    val endG = (endColor shr 8) and 0xff
-    val endB = endColor and 0xff
-
-    // Linearly interpolate each channel using the formula:
-    // result = start + ((end - start) * fraction)
-    val a = (startA + ((endA - startA) * fraction)).toInt()
-    val r = (startR + ((endR - startR) * fraction)).toInt()
-    val g = (startG + ((endG - startG) * fraction)).toInt()
-    val b = (startB + ((endB - startB) * fraction)).toInt()
-
-    // Recombine the channels into a single ARGB Int:
-    // (alpha << 24) | (red << 16) | (green << 8) | blue
-    return (a and 0xff shl 24) or
-            (r and 0xff shl 16) or
-            (g and 0xff shl 8) or
-            (b and 0xff)
 }
