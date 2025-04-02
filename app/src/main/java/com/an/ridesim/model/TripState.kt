@@ -17,3 +17,8 @@ enum class TripState {
     /** When the simulated ride ends */
     COMPLETED
 }
+
+fun TripState.peekHeight() = when (this) {
+    TripState.IDLE  -> 0.5f
+    TripState.DRIVER_ARRIVING, TripState.ON_TRIP, TripState.COMPLETED -> 0.4f
+}
