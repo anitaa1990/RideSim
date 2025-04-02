@@ -37,8 +37,7 @@ import com.an.ridesim.ui.viewmodel.RideViewModel.RideUiState
 @Composable
 fun RideDetailSection(
     uiState: RideUiState,
-    onVehicleSelected: (VehicleDetail) -> Unit,
-    onBookRide: () -> Unit
+    onVehicleSelected: (VehicleDetail) -> Unit
 ) {
     val vehicleList = uiState.availableVehicles
 

@@ -44,8 +44,7 @@ fun RideBottomSheetContent(
     } else {
         RideDetailSection(
             uiState = uiState,
-            onVehicleSelected = { onVehicleSelected(it) },
-            onBookRide = {  }
+            onVehicleSelected = { onVehicleSelected(it) }
         )
     }
 }
