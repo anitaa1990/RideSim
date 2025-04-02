@@ -8,3 +8,4 @@ data class LatLngPoint(
 )
 
 fun LatLngPoint.toLatLng() = LatLng(latitude, longitude)
+fun LatLng.toLatLngPoint() = LatLngPoint(latitude, longitude)

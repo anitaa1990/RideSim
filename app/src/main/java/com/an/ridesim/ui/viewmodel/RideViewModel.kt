@@ -7,6 +7,7 @@ import com.an.ridesim.data.RouteRepository
 import com.an.ridesim.model.*
 import com.an.ridesim.util.FareCalculator
 import com.an.ridesim.util.LocationUtils
+import com.an.ridesim.util.MapUtils
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -233,29 +234,78 @@ class RideViewModel @Inject constructor(
     }
 
     /**
-     * Starts the trip simulation flow:
-     * - DRIVER_ARRIVING
-     * - ON_TRIP
-     * - COMPLETED
-     *
-     * Animates the car position along the polyline.
+     * Simulates the ride from the initial random start point to the pickup location, and then
+     * from the pickup location to the drop location. The simulation updates the trip state and
+     * vehicle position on the map. The trip state changes as the vehicle moves through different
+     * stages: DRIVER_ARRIVING, ON_TRIP, and COMPLETED.
      */
     fun startRideSimulation() {
         viewModelScope.launch {
+            // Step 1: Start the trip with the DRIVER_ARRIVING state
             _uiState.update { it.copy(tripState = TripState.DRIVER_ARRIVING) }
 
-            delay(3000)
+            // Step 2: Randomly set initial position (within 1-2km of the pickup location)
+            // This sets the initial random location for the vehicle within a defined distance range
+            val pickup = _uiState.value.pickupLocation ?: return@launch
+            val randomStartPoint = MapUtils.generateRandomStartPoint(pickup, 1000.0, 2000.0)
+            _uiState.update { it.copy(carPosition = randomStartPoint) }
 
-            _uiState.update { it.copy(tripState = TripState.ON_TRIP) }
+            // Step 3: Calculate the route from the random starting point to the pickup location
+            // The updateRouteInfo method will fetch and set the route between start and pickup
+            updateRouteInfo(randomStartPoint, pickup)
 
-            val path = _uiState.value.routePolyline
-            for (point in path) {
-                delay(500)
-                _uiState.update { it.copy(carPosition = LatLngPoint(point.latitude, point.longitude)) }
+            // Step 4: Simulate vehicle movement from the random start point to the pickup location.
+            // This function updates the car's position and polyline during the movement
+            simulateVehicleMovement()
+
+            // Initialize the polyline correctly from the driver's initial position to the
+            // pickup location. Ensure that the polyline is set correctly the first time with
+            // the initial vehicle position
+            val driverStart = _uiState.value.carPosition ?: return@launch
+
+            // Set the initial polyline from the driver's location to the pickup location
+            if (_uiState.value.routePolyline.isEmpty()) {
+                // Create the initial polyline between the driver's location and pickup location
+                val initialPolyline = listOf(
+                    LatLng(driverStart.latitude, driverStart.longitude),
+                    LatLng(pickup.latitude, pickup.longitude)
+                )
+
+                // Update the routePolyline in the state
+                _uiState.update { it.copy(routePolyline = initialPolyline) }
             }
 
-            _uiState.update {
-                it.copy(tripState = TripState.COMPLETED, carPosition = null)
+
+            // Step 5: Once the driver arrives at the pickup, change the trip state to ON_TRIP
+            // After the vehicle reaches the pickup location, the trip transitions to the
+            // "ON_TRIP" state
+            _uiState.update { it.copy(tripState = TripState.ON_TRIP) }
+
+            // Step 6: Now simulate the trip from the pickup location to the drop location
+            // // Ensure drop location is available
+            val drop = _uiState.value.dropLocation ?: return@launch
+
+            // Fetch and update the route between pickup and drop
+            updateRouteInfo(pickup, drop)
+
+            // Step 7: Simulate vehicle movement from the pickup to the drop location
+            // Update vehicle's position and polyline during the trip to the drop
+            simulateVehicleMovement()
+
+            // Step 8: Once the vehicle has arrived at the drop-off location,
+            // update the trip state to COMPLETED. Get the final point on the route
+            val finalPoint = _uiState.value.routePolyline.last().toLatLngPoint()
+
+            // Calculate the distance to the drop-off location
+            val distanceToDrop = locationUtils.calculateHaversineDistance(finalPoint, drop)
+
+            // If the vehicle is within 50 meters of the drop-off location,
+            // mark the trip as completed
+            if (distanceToDrop < 50) {  // If within 100 meters of drop location
+                _uiState.update {
+                    // Update the trip state to COMPLETED
+                    it.copy(tripState = TripState.COMPLETED)
+                }
             }
         }
     }
@@ -270,6 +320,63 @@ class RideViewModel @Inject constructor(
                 estimatedFare = null,
                 carPosition = null
             )
+        }
+    }
+
+    /**
+     * Calculates and updates the route (polyline) between the pickup and drop-off locations.
+     * The method fetches the route from the route repository and updates the routePolyline
+     * in the UI state, which is used to display the path on the map.
+     *
+     * @param pickup The pickup location represented as a [LatLngPoint].
+     * @param drop The drop-off location represented as a [LatLngPoint].
+     *
+     */
+    private suspend fun updateRouteInfo(
+        pickup: LatLngPoint,
+        drop: LatLngPoint
+    ) {
+        // Fetch the route information from the repository between the pickup and drop locations
+        val routeResultTrip = withContext(dispatcher) {
+            // Convert the route points to a list of [LatLng] to represent the polyline
+            routeRepository.getRoute(pickup.toLatLng(), drop.toLatLng())
+        }
+
+        // Update the UI state with the new polyline for rendering on the map.
+        routeResultTrip?.let {
+            val pickupToDropPolyline = it.routePoints.map { pt ->
+                LatLng(pt.latitude, pt.longitude)
+            }
+            _uiState.update { it.copy(routePolyline = pickupToDropPolyline) }
+        }
+    }
+
+    /**
+     * Simulates the vehicle's movement along the route polyline.
+     * The method updates the vehicle's position on the map by iterating through the route polyline
+     * points. It also updates the polyline, removing segments that the vehicle has already crossed.
+     *
+     */
+    private suspend fun simulateVehicleMovement() {
+        val driverPath = _uiState.value.routePolyline
+        var currentIndexTrip = 0
+
+        // Loop through the route points (driver path) to simulate the movement
+        for (i in driverPath.indices) {
+            // Introduce a delay between each movement to create a smooth animation effect
+            delay(500)
+
+            // For each point in the route, update the vehicle's position on the map
+            val point = driverPath[i]
+            _uiState.update { it.copy(carPosition = LatLngPoint(point.latitude, point.longitude)) }
+
+            // Remove the polyline segments that the vehicle has already crossed,
+            // making the polyline dynamic
+            if (i > currentIndexTrip) {
+                val updatedPolyline = driverPath.subList(i, driverPath.size)
+                _uiState.update { it.copy(routePolyline = updatedPolyline) }
+                currentIndexTrip = i  // Update the current index
+            }
         }
     }
 

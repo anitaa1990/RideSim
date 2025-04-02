@@ -4,8 +4,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import com.an.ridesim.model.LatLngPoint
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.random.Random
 
 object MapUtils {
     /**
@@ -87,5 +91,60 @@ object MapUtils {
         // resized bitmap is then converted into a BitmapDescriptor that can be used with
         // Google Maps markers
         return BitmapDescriptorFactory.fromBitmap(resizedBitmap)
+    }
+
+    /**
+     * Generates a random start point on the left side of the map, near the pickup location.
+     * The start point is calculated using polar coordinates, with the added flexibility
+     * of controlling the direction using a random angle.
+     *
+     * @param minDistance The minimum distance (in meters) from the pickup location for the random point.
+     * @param maxDistance The maximum distance (in meters) from the pickup location for the random point.
+     * @return A new [com.an.ridesim.model.LatLngPoint] representing the randomly generated start point.
+     *
+     * A random distance between `minDistance` and `maxDistance` is chosen to control how far
+     * the start point will be from the pickup. The angle at which the new point is generated is
+     * randomly chosen within the range of 45° to 90° (left side of the map). Using the polar
+     * coordinates method, a random point is generated within the specified radius,
+     * considering the random angle. The method correctly accounts for the Earth's curvature and
+     * adjusts the latitude and longitude accordingly.
+     *
+     */
+    fun generateRandomStartPoint(
+        pickupPoint: LatLngPoint,
+        minDistance: Double,
+        maxDistance: Double
+    ): LatLngPoint {
+        // Generate a random distance between `minDistance` and `maxDistance` to control how far
+        // the start point will be from the pickup
+        val randomDistance = Random.nextDouble(minDistance, maxDistance)
+
+        // Generate an angle between 45° and 90°, at which the new point is generated
+        val randomAngle = (45..90).random()
+
+        // Convert the random distance and angle to polar coordinates
+        // (latitude and longitude adjustments)
+        // Earth's radius in meters
+        val earthRadius = 6371e3
+        // Change in latitude (in radians)
+        val deltaLat = randomDistance / earthRadius
+        // Change in longitude
+        val deltaLon = randomDistance / (earthRadius * cos(Math.PI * pickupPoint.latitude / 180))
+
+        // Apply the random angle to adjust the direction of the new point
+        // and convert angle to radians
+        val angleInRadians = Math.toRadians(randomAngle.toDouble())
+        // Adjust latitude based on the angle
+        val adjustedDeltaLat = deltaLat * cos(angleInRadians)
+        // Adjust longitude based on the angle
+        val adjustedDeltaLon = deltaLon * sin(angleInRadians)
+
+        // Calculate the new latitude and longitude by adding the changes to the current position.
+        // Convert deltaLat and deltaLon to degrees
+        val newLat = pickupPoint.latitude + adjustedDeltaLat * 180 / Math.PI
+        val newLon = pickupPoint.longitude + adjustedDeltaLon * 180 / Math.PI
+
+        // Return the new LatLngPoint as the randomly generated start point
+        return LatLngPoint(newLat, newLon)
     }
 }
