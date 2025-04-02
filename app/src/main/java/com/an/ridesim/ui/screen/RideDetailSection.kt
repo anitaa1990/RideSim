@@ -67,7 +67,7 @@ fun RideDetailSection(
             val vehicle = vehicleList[index]
             VehicleListItem(
                 vehicle = vehicle,
-                isSelected = uiState.selectedVehicle == vehicle,
+                isSelected = uiState.selectedVehicle.vehicleType == vehicle.vehicleType,
                 onClick = { onVehicleSelected(vehicle) }
             )
         }
