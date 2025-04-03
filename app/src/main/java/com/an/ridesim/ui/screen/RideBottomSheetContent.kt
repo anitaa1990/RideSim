@@ -49,6 +49,8 @@ fun RideBottomSheetContent(
             onVehicleSelected = { onVehicleSelected(it) }
         )
     } else if (uiState.tripState.hasRideStarted()) {
-        RideStartedSection()
+        RideStartedSection(
+            vehicleDetail = uiState.selectedVehicle
+        )
     }
 }
