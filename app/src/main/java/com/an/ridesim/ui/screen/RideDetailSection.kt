@@ -40,6 +40,7 @@ fun RideDetailSection(
     onVehicleSelected: (VehicleDetail) -> Unit
 ) {
     val vehicleList = uiState.availableVehicles
+    val rideUiModel = uiState.rideUiModel
 
     // We use LazyColumn here (instead of Column + verticalScroll) because:
     // - It prevents "infinite height constraint" crashes inside BottomSheetScaffold
@@ -56,8 +57,8 @@ fun RideDetailSection(
         // Top greeting text
         item {
             RideDetailTitleSection(
-                distanceInKm = uiState.distanceInKm,
-                durationInMinutes = uiState.durationInMinutes
+                distanceInKm = rideUiModel.distanceInKm,
+                durationInMinutes = rideUiModel.durationInMinutes
             )
         }
 

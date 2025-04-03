@@ -22,6 +22,6 @@ fun TextWithLabelView(
     Spacer(modifier = Modifier.height(4.dp))
     Text(
         text = text,
-        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
     )
 }

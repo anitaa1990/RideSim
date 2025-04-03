@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,11 +32,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.ridesim.R
+import com.an.ridesim.model.LatLngPoint
 import com.an.ridesim.model.VehicleDetail
 import com.an.ridesim.ui.component.TextWithLabelView
+import com.an.ridesim.ui.model.LocationUiModel
+import com.an.ridesim.ui.model.RideUiModel
 import com.an.ridesim.ui.viewmodel.RideViewModel
 import com.an.ridesim.util.RideUtils
 
@@ -46,6 +53,7 @@ fun RideSummaryScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(WindowInsets.systemBars.asPaddingValues())
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -53,17 +61,27 @@ fun RideSummaryScreen(
         // Title
         Text(
             text = stringResource(R.string.ride_summary_title),
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+            modifier = Modifier.padding(10.dp)
         )
 
         // Ride Summary
-        RideSummarySection(vehicle = uiState.selectedVehicle)
+        RideSummarySection(
+            vehicle = uiState.selectedVehicle
+        )
 
         // Vehicle Summary
-        VehicleSummarySection()
+        VehicleSummarySection(
+            vehicle = uiState.selectedVehicle,
+            rideUiModel = uiState.rideUiModel
+        )
 
         // Location summary
-        LocationSummarySection()
+        LocationSummarySection(
+            rideUiModel = uiState.rideUiModel,
+            pickupLocation = uiState.pickupLocation,
+            dropLocation = uiState.dropLocation
+        )
     }
 }
 
@@ -134,7 +152,10 @@ private fun RideSummarySection(
 }
 
 @Composable
-private fun VehicleSummarySection() {
+private fun VehicleSummarySection(
+    vehicle: VehicleDetail,
+    rideUiModel: RideUiModel
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -148,20 +169,22 @@ private fun VehicleSummarySection() {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Left Column
             Column(
                 modifier = Modifier.weight(1.3f)
             ) {
                 TextWithLabelView(
                     label = stringResource(R.string.vehicle_model_label),
-                    text = "AUTO"
+                    text = vehicle.vehicleType.name
                 )
 
                 Spacer(Modifier.height(16.dp))
 
                 TextWithLabelView(
                     label = stringResource(R.string.ride_distance_label),
-                    text = "11 km"
+                    text = String.format(
+                        stringResource(R.string.ride_detail_distance),
+                        rideUiModel.distanceInKm
+                    )
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -181,7 +204,7 @@ private fun VehicleSummarySection() {
                             imageVector = Icons.Default.Star,
                             contentDescription = null,
                             tint = Color(0xFFFFC107),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(25.dp)
                         )
                     }
                 }
@@ -189,27 +212,29 @@ private fun VehicleSummarySection() {
 
             Spacer(Modifier.width(16.dp))
 
-            // Right Column
             Column(
                 modifier = Modifier.weight(0.7f)
             ) {
                 TextWithLabelView(
                     label = stringResource(R.string.ride_driver_label),
-                    text = "KANNIYAPPAN V"
+                    text = rideUiModel.driverName
                 )
 
                 Spacer(Modifier.height(16.dp))
 
                 TextWithLabelView(
                     label = stringResource(R.string.ride_time_label),
-                    text = "23 mins 34 s"
+                    text = String.format(
+                        stringResource(R.string.ride_detail_time),
+                        rideUiModel.durationInMinutes
+                    )
                 )
 
                 Spacer(Modifier.height(16.dp))
 
                 TextWithLabelView(
                     label = stringResource(R.string.ride_id_label),
-                    text = "JOxvrGTk0M"
+                    text = rideUiModel.rideId
                 )
             }
         }
@@ -217,7 +242,11 @@ private fun VehicleSummarySection() {
 }
 
 @Composable
-private fun LocationSummarySection() {
+private fun LocationSummarySection(
+    rideUiModel: RideUiModel,
+    pickupLocation: LocationUiModel?,
+    dropLocation: LocationUiModel?
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -242,7 +271,7 @@ private fun LocationSummarySection() {
                     contentDescription = null,
                     modifier = Modifier
                         .padding(top = 4.dp)
-                        .height(80.dp),
+                        .height(90.dp),
                     tint = Color.Unspecified
                 )
 
@@ -251,7 +280,7 @@ private fun LocationSummarySection() {
                 Column {
                     // Pickup
                     Text(
-                        text = "9:45am • Mon, Mar 24",
+                        text = rideUiModel.rideStartTimeString,
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.Medium,
                             color = Color.Black
@@ -259,21 +288,27 @@ private fun LocationSummarySection() {
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "Thoraipakkam",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
+                        text = pickupLocation?.subLocality ?: "",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = Color(0xFF5F6368),
+                            fontSize = 13.sp
+                        ),
                     )
                     Text(
-                        text = "378a, Akshaya Tango Rd, Seevaram, Thoraipakkam, Chennai, Tamil Nadu",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
+                        text = pickupLocation?.address ?: "",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = Color(0xFF5F6368),
+                            fontSize = 13.sp
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(14.dp))
 
                     // Drop
                     Text(
-                        text = "10:05am • Mon, Mar 24",
+                        text = RideUtils.getRideTimeFormatted(),
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.Medium,
                             color = Color.Black
@@ -281,11 +316,11 @@ private fun LocationSummarySection() {
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "Panaiyur",
+                        text = dropLocation?.subLocality ?: "",
                         style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
                     )
                     Text(
-                        text = "8th Ave Seashore Town, Panaiyur, Chennai, Tamil Nadu",
+                        text = dropLocation?.address ?: "",
                         style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -308,7 +343,14 @@ fun RideSummarySectionPreview() {
 @Composable
 fun VehicleSummarySectionPreview() {
     VehicleSummarySection(
-
+        vehicle = VehicleDetail.getAuto(),
+        rideUiModel = RideUiModel(
+            rideId = RideUtils.generateRandomRideId(),
+            driverName = RideUtils.getRandomDriverName(),
+            distanceInKm = 11.0,
+            durationInMinutes = 23,
+            rideStartTimeString = RideUtils.getRideTimeFormatted()
+        )
     )
 }
 
@@ -316,5 +358,22 @@ fun VehicleSummarySectionPreview() {
 @Composable
 fun LocationSummarySectionPreview() {
     LocationSummarySection(
+        rideUiModel = RideUiModel(
+            rideId = RideUtils.generateRandomRideId(),
+            driverName = RideUtils.getRandomDriverName(),
+            distanceInKm = 11.0,
+            durationInMinutes = 23,
+            rideStartTimeString = RideUtils.getRideTimeFormatted()
+        ),
+        pickupLocation = LocationUiModel(
+            "Seevaram, Thoraipakkam, Chennai, Tamil Nadhu",
+            "Thoraipakkam",
+            LatLngPoint(12.1, 15.3)
+        ),
+        dropLocation = LocationUiModel(
+            "8th Ave, Seashore Town, Panaiyur, Chennai, Tamil Nadu",
+            "Panaiyur",
+            LatLngPoint(13.5, 16.4)
+        )
     )
 }

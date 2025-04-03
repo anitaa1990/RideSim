@@ -83,4 +83,17 @@ object RideUtils {
         val dateFormat = SimpleDateFormat("EEE, MMM d • h:mma", Locale.getDefault())
         return dateFormat.format(now)
     }
+
+    fun getRideTimeFormatted(): String {
+        val now = Date()
+        val dateFormat = SimpleDateFormat("h:mma • EEE, MMM d", Locale.getDefault())
+        return dateFormat.format(now)
+    }
+
+    fun generateRandomRideId(length: Int = 10): String {
+        val charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        return (1..length)
+            .map { charset.random() }
+            .joinToString("")
+    }
 }

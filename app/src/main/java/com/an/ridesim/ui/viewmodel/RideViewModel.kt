@@ -6,9 +6,11 @@ import com.an.ridesim.data.PlacesRepository
 import com.an.ridesim.data.RouteRepository
 import com.an.ridesim.model.*
 import com.an.ridesim.ui.model.LocationUiModel
+import com.an.ridesim.ui.model.RideUiModel
 import com.an.ridesim.util.FareCalculator
 import com.an.ridesim.util.LocationUtils
 import com.an.ridesim.util.MapUtils
+import com.an.ridesim.util.RideUtils
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -157,14 +159,17 @@ class RideViewModel @Inject constructor(
 
                     _uiState.update { state ->
                         state.copy(
-                            distanceInKm = it.distanceInKm,
-                            durationInMinutes = it.durationInMinutes.toInt(),
-                            routePolyline = polylinePoints
+                            rideUiModel = RideUiModel(
+                                rideId = RideUtils.generateRandomRideId(),
+                                driverName = RideUtils.getRandomDriverName(),
+                                distanceInKm = it.distanceInKm,
+                                durationInMinutes = it.durationInMinutes.toInt(),
+                                rideStartTimeString = RideUtils.getRideTimeFormatted()
+                            ),
+                            routePolyline = polylinePoints,
+                            availableVehicles = fetchVehicleDetails()
                         )
                     }
-
-                    // Now compute fare on UI thread
-                    calculateFare()
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(routeError = e.message ?: "Route fetch failed") }
@@ -173,65 +178,47 @@ class RideViewModel @Inject constructor(
     }
 
     /**
-     * Calculates fare using selected vehicle type and route metrics.
-     */
-    private fun calculateFare() {
-        val state = _uiState.value
-        if (state.distanceInKm != null && state.durationInMinutes != null) {
-            val fare = FareCalculator.calculateFare(
-                distanceInKm = state.distanceInKm,
-                waitTimeInMinutes = state.durationInMinutes,
-                vehicleType = state.selectedVehicle.vehicleType
-            )
-            _uiState.update { it.copy(
-                estimatedFare = fare,
-                availableVehicles = fetchVehicleDetails()
-            ) }
-        }
-    }
-
-    /**
      * Updates the selected vehicle type and triggers a fare recalculation.
      */
     fun updateSelectedVehicle(selectedVehicle: VehicleDetail) {
         _uiState.update { it.copy(selectedVehicle = selectedVehicle) }
-        calculateFare()
     }
 
     private fun fetchVehicleDetails(): List<VehicleDetail> {
+        val rideUiModel = _uiState.value.rideUiModel
         return listOf(
             VehicleDetail.getAuto().copy(
                 price = FareCalculator.calculateFare(
-                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
-                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    distanceInKm = rideUiModel.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = rideUiModel.durationInMinutes ?: 0,
                     vehicleType = VehicleType.AUTO
                 ).toDouble()
             ),
             VehicleDetail.getMini().copy(
                 price = FareCalculator.calculateFare(
-                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
-                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    distanceInKm = rideUiModel.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = rideUiModel.durationInMinutes ?: 0,
                     vehicleType = VehicleType.AC_MINI
                 ).toDouble()
             ),
             VehicleDetail.getSedan().copy(
                 price = FareCalculator.calculateFare(
-                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
-                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    distanceInKm = rideUiModel.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = rideUiModel.durationInMinutes ?: 0,
                     vehicleType = VehicleType.SEDAN
                 ).toDouble()
             ),
             VehicleDetail.getSUV().copy(
                 price = FareCalculator.calculateFare(
-                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
-                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    distanceInKm = rideUiModel.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = rideUiModel.durationInMinutes ?: 0,
                     vehicleType = VehicleType.SUV
                 ).toDouble()
             ),
             VehicleDetail.getSUVPlus().copy(
                 price = FareCalculator.calculateFare(
-                    distanceInKm = _uiState.value.distanceInKm ?: 0.0,
-                    waitTimeInMinutes = _uiState.value.durationInMinutes ?: 0,
+                    distanceInKm = rideUiModel.distanceInKm ?: 0.0,
+                    waitTimeInMinutes = rideUiModel.durationInMinutes ?: 0,
                     vehicleType = VehicleType.SUV_PLUS
                 ).toDouble()
             )
@@ -322,7 +309,6 @@ class RideViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 tripState = TripState.IDLE,
-                estimatedFare = null,
                 carPosition = null
             )
         }
@@ -441,9 +427,7 @@ class RideViewModel @Inject constructor(
         val pickupSuggestions: List<AutocompletePrediction> = emptyList(),
         val dropSuggestions: List<AutocompletePrediction> = emptyList(),
         val selectedVehicle: VehicleDetail = VehicleDetail.getAuto(),
-        val estimatedFare: Int? = null,
-        val distanceInKm: Double? = null,
-        val durationInMinutes: Int? = null,
+        val rideUiModel: RideUiModel = RideUiModel(),
         val tripState: TripState = TripState.IDLE,
         val routePolyline: List<LatLng> = emptyList(),
         val carPosition: LatLngPoint? = null,
