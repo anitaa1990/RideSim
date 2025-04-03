@@ -51,10 +51,14 @@ class PlacesRepository @Inject constructor(
      * @param placeId The unique Google Place ID.
      * @return A [Pair] containing the LatLng and full address, or null if not found.
      */
-    suspend fun resolvePlaceId(placeId: String): Pair<LatLng, String>? {
+    suspend fun resolvePlaceId(placeId: String): Triple<LatLng, String, String?>? {
         return suspendCancellableCoroutine { cont ->
             // Request the required fields (lat/lng and address)
-            val placeFields = listOf(Place.Field.LAT_LNG, Place.Field.ADDRESS)
+            val placeFields = listOf(
+                Place.Field.LAT_LNG,
+                Place.Field.ADDRESS,
+                Place.Field.ADDRESS_COMPONENTS
+            )
             val request = FetchPlaceRequest.builder(placeId, placeFields).build()
 
             // Call the SDK to fetch the place details
@@ -62,10 +66,16 @@ class PlacesRepository @Inject constructor(
                 .addOnSuccessListener { response ->
                     val latLng = response.place.location
                     val address = response.place.formattedAddress
+                    val components = response.place.addressComponents?.asList()
+                    val area = components
+                        ?.firstOrNull {
+                            it.types.contains("sublocality") || it.types.contains("locality")
+                        }
+                        ?.name
 
                     if (latLng != null && address != null) {
                         // Resume with location and address if both are valid
-                        cont.resume(Pair(latLng, address)) { _, _, _ -> }
+                        cont.resume(Triple(latLng, address, area)) { _, _, _ -> }
                     } else {
                         // Resume with null if incomplete result
                         cont.resume(null) { _, _, _ -> }

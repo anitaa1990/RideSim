@@ -85,8 +85,8 @@ fun HomeScreen(
         when (uiState.tripState) {
             TripState.IDLE -> {
                 // When the trip is in IDLE state, show both pickup and drop locations on the map
-                val pickup = uiState.pickupLocation
-                val drop = uiState.dropLocation
+                val pickup = uiState.pickupLocation?.locationPoint
+                val drop = uiState.dropLocation?.locationPoint
                 zoom(pickup, drop, cameraPositionState, 100)
 
                 if (pickup != null && drop == null) {
@@ -104,11 +104,11 @@ fun HomeScreen(
     var pickupInput by rememberSaveable { mutableStateOf("") }
     var dropInput by rememberSaveable { mutableStateOf("") }
 
-    LaunchedEffect(uiState.pickupAddress) {
-        pickupInput = uiState.pickupAddress.orEmpty()
+    LaunchedEffect(uiState.pickupLocation?.address) {
+        pickupInput = uiState.pickupLocation?.address.orEmpty()
     }
-    LaunchedEffect(uiState.dropAddress) {
-        dropInput = uiState.dropAddress.orEmpty()
+    LaunchedEffect(uiState.dropLocation?.address) {
+        dropInput = uiState.dropLocation?.address.orEmpty()
     }
 
     // Animate bottom sheet based on focus state
@@ -162,8 +162,8 @@ fun HomeScreen(
             }
         ) {
             GoogleMapView(
-                pickupLocation = uiState.pickupLocation,
-                dropLocation = uiState.dropLocation,
+                pickupLocation = uiState.pickupLocation?.locationPoint,
+                dropLocation = uiState.dropLocation?.locationPoint,
                 carPosition = uiState.carPosition,
                 routePolyline = uiState.routePolyline,
                 tripState = uiState.tripState,

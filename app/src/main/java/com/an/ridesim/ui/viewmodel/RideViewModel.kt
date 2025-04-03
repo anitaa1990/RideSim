@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.an.ridesim.data.PlacesRepository
 import com.an.ridesim.data.RouteRepository
 import com.an.ridesim.model.*
+import com.an.ridesim.ui.model.LocationUiModel
 import com.an.ridesim.util.FareCalculator
 import com.an.ridesim.util.LocationUtils
 import com.an.ridesim.util.MapUtils
@@ -72,9 +73,15 @@ class RideViewModel @Inject constructor(
             try {
                 val location = locationUtils.getLastKnownLocation()
                 location?.let { point ->
-                    val address = locationUtils.getAddressFromLatLng(point)
+                    val ( address, area) = locationUtils.getAddressFromLatLng(point)
                     _uiState.update {
-                        it.copy(pickupLocation = point, pickupAddress = address)
+                        it.copy(
+                            pickupLocation = LocationUiModel(
+                                address = address,
+                                subLocality = area,
+                                locationPoint = point
+                            )
+                        )
                     }
                 }
             } catch (e: Exception) {
@@ -109,17 +116,15 @@ class RideViewModel @Inject constructor(
     fun selectPlace(placeId: String, isPickup: Boolean) {
         viewModelScope.launch {
             try {
-                val (latLng, address) = placesRepository.resolvePlaceId(placeId) ?: return@launch
+                val (latLng, address, area) = placesRepository.resolvePlaceId(placeId) ?: return@launch
                 val latLngPoint = LatLngPoint(latLng.latitude, latLng.longitude)
 
                 _uiState.update {
                     if (isPickup) it.copy(
-                        pickupLocation = latLngPoint,
-                        pickupAddress = address,
+                        pickupLocation = LocationUiModel(address, area, latLngPoint),
                         pickupSuggestions = emptyList()
                     ) else it.copy(
-                        dropLocation = latLngPoint,
-                        dropAddress = address,
+                        dropLocation = LocationUiModel(address, area, latLngPoint),
                         dropSuggestions = emptyList()
                     )
                 }
@@ -136,8 +141,8 @@ class RideViewModel @Inject constructor(
      * Updates the polyline and time/distance in UI state.
      */
     private fun calculateRouteAndFare() {
-        val pickup = _uiState.value.pickupLocation
-        val drop = _uiState.value.dropLocation
+        val pickup = _uiState.value.pickupLocation?.locationPoint
+        val drop = _uiState.value.dropLocation?.locationPoint
         if (pickup == null || drop == null) return
 
         viewModelScope.launch {
@@ -246,7 +251,7 @@ class RideViewModel @Inject constructor(
 
             // Step 2: Randomly set initial position (within 1-2km of the pickup location)
             // This sets the initial random location for the vehicle within a defined distance range
-            val pickup = _uiState.value.pickupLocation ?: return@launch
+            val pickup = _uiState.value.pickupLocation?.locationPoint ?: return@launch
             val randomStartPoint = MapUtils.generateRandomStartPoint(pickup, 1000.0, 2000.0)
             _uiState.update { it.copy(carPosition = randomStartPoint) }
 
@@ -283,7 +288,7 @@ class RideViewModel @Inject constructor(
 
             // Step 6: Now simulate the trip from the pickup location to the drop location
             // // Ensure drop location is available
-            val drop = _uiState.value.dropLocation ?: return@launch
+            val drop = _uiState.value.dropLocation?.locationPoint ?: return@launch
 
             // Fetch and update the route between pickup and drop
             updateRouteInfo(pickup, drop)
@@ -431,10 +436,8 @@ class RideViewModel @Inject constructor(
      */
     data class RideUiState(
         val isPermissionGranted: Boolean,
-        val pickupAddress: String? = null,
-        val pickupLocation: LatLngPoint? = null,
-        val dropAddress: String? = null,
-        val dropLocation: LatLngPoint? = null,
+        val pickupLocation: LocationUiModel? = null,
+        val dropLocation: LocationUiModel? = null,
         val pickupSuggestions: List<AutocompletePrediction> = emptyList(),
         val dropSuggestions: List<AutocompletePrediction> = emptyList(),
         val selectedVehicle: VehicleDetail = VehicleDetail.getAuto(),
