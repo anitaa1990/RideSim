@@ -10,6 +10,19 @@ enum class VehicleType {
     SUV_PLUS
 }
 
+fun VehicleType.getImageId() = when(this) {
+    VehicleType.AUTO -> R.drawable.ic_full_auto
+    VehicleType.AC_MINI -> R.drawable.ic_full_mini
+    VehicleType.SEDAN -> R.drawable.ic_full_sedan
+    VehicleType.SUV -> R.drawable.ic_full_suv
+    VehicleType.SUV_PLUS -> R.drawable.ic_full_suv_plus
+}
+
+fun VehicleType.getIconId() = when(this) {
+    VehicleType.AUTO -> R.drawable.ic_front_auto
+    else -> R.drawable.ic_front_car
+}
+
 data class VehicleDetail(
     val vehicleType: VehicleType,
     val iconResId: Int,

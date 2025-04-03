@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import com.an.ridesim.model.LatLngPoint
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -63,7 +62,7 @@ class LocationUtils @Inject constructor(
         }
     }
 
-    suspend fun getAddressFromLatLng(latLng: LatLngPoint): String? {
+    suspend fun getAddressFromLatLng(latLng: LatLngPoint): Pair<String?, String?> {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             suspendCancellableCoroutine { cont ->
                 Geocoder(context, Locale.getDefault()).getFromLocation(
@@ -74,11 +73,12 @@ class LocationUtils @Inject constructor(
                     object : Geocoder.GeocodeListener {
                         override fun onGeocode(addresses: MutableList<Address>) {
                             val address = addresses.firstOrNull()?.getAddressLine(0)
-                            cont.resume(address) { _, _, _ -> }
+                            val area = addresses.firstOrNull()?.subLocality ?: addresses.firstOrNull()?.locality
+                            cont.resume(Pair(address, area)) { _, _, _ -> }
                         }
 
                         override fun onError(errorMessage: String?) {
-                            cont.resume(null) { _, _, _ -> }
+                            cont.resume(Pair(null, null)) { _, _, _ -> }
                         }
                     }
                 )
@@ -88,10 +88,12 @@ class LocationUtils @Inject constructor(
                 try {
                     val addresses = Geocoder(context, Locale.getDefault())
                         .getFromLocation(latLng.latitude, latLng.longitude, 1)
-                    addresses?.firstOrNull()?.getAddressLine(0)
+                    val address = addresses?.firstOrNull()?.getAddressLine(0)
+                    val area = addresses?.firstOrNull()?.subLocality ?: addresses?.firstOrNull()?.locality
+                    Pair(address, area)
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    null
+                    Pair(null, null)
                 }
             }
         }

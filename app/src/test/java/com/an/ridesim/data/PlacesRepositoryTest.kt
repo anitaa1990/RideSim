@@ -3,6 +3,8 @@ package com.an.ridesim.data
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
+import com.google.android.libraries.places.api.model.AddressComponent
+import com.google.android.libraries.places.api.model.AddressComponents
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
@@ -83,9 +85,18 @@ class PlacesRepositoryTest {
         val place = mock<Place>()
         val latLng = mock<com.google.android.gms.maps.model.LatLng>()
 
+        // Mock address components
+        val mockComponent = mock<AddressComponent>()
+        whenever(mockComponent.types).thenReturn(listOf("locality"))
+        whenever(mockComponent.name).thenReturn("Thoraipakkam")
+        val mockComponentsList = listOf(mockComponent)
+        val mockAddressComponents = mock<AddressComponents>()
+        whenever(mockAddressComponents.asList()).thenReturn(mockComponentsList)
+
         // Mock behavior of Place and Response
         whenever(place.location).thenReturn(latLng)
         whenever(place.formattedAddress).thenReturn("123 Main St")
+        whenever(place.addressComponents).thenReturn(mockAddressComponents)
         whenever(mockResponse.place).thenReturn(place)
 
         // Mock behavior of Task
@@ -99,7 +110,8 @@ class PlacesRepositoryTest {
 
         // Call the function and verify result
         val result = repository.resolvePlaceId("placeId")
-        assertEquals(Pair(latLng, "123 Main St"), result)
+
+        assertEquals(Triple(latLng, "123 Main St", "Thoraipakkam"), result)
     }
 
     @Test

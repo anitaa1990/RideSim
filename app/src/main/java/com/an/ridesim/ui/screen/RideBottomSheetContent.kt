@@ -1,7 +1,9 @@
 package com.an.ridesim.ui.screen
 
 import androidx.compose.runtime.Composable
+import com.an.ridesim.model.TripState
 import com.an.ridesim.model.VehicleDetail
+import com.an.ridesim.model.hasRideStarted
 import com.an.ridesim.ui.viewmodel.AddressFieldType
 import com.an.ridesim.ui.viewmodel.RideViewModel.RideUiState
 import com.google.android.libraries.places.api.model.AutocompletePrediction
@@ -41,10 +43,16 @@ fun RideBottomSheetContent(
             },
             onSuggestionSelected = onSuggestionSelected
         )
-    } else {
+    } else if (uiState.tripState == TripState.IDLE) {
         RideDetailSection(
             uiState = uiState,
             onVehicleSelected = { onVehicleSelected(it) }
+        )
+    } else if (uiState.tripState.hasRideStarted()) {
+        RideStartedSection(
+            pickupLocation = uiState.pickupLocation,
+            dropLocation = uiState.dropLocation,
+            vehicleDetail = uiState.selectedVehicle
         )
     }
 }
