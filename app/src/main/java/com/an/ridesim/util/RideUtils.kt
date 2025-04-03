@@ -1,6 +1,9 @@
 package com.an.ridesim.util
 
 import com.an.ridesim.model.VehicleType
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 object RideUtils {
     private val driverNames = listOf(
@@ -73,5 +76,11 @@ object RideUtils {
         VehicleType.SEDAN -> sedanPlates.random()
         VehicleType.SUV -> suvPlates.random()
         VehicleType.SUV_PLUS -> suvPlusPlates.random()
+    }
+
+    fun getCurrentDateTimeFormatted(): String {
+        val now = Date()
+        val dateFormat = SimpleDateFormat("EEE, MMM d • h:mma", Locale.getDefault())
+        return dateFormat.format(now)
     }
 }
