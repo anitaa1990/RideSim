@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.ridesim.model.LatLngPoint
 import com.an.ridesim.model.TripState
+import com.an.ridesim.model.hasRideCompleted
 import com.an.ridesim.model.peekHeight
 import com.an.ridesim.model.shouldFollowCar
 import com.an.ridesim.model.toLatLng
@@ -59,7 +60,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: RideViewModel
+    viewModel: RideViewModel,
+    onTripCompleted: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle(LocalLifecycleOwner.current)
     val cameraPositionState = rememberCameraPositionState()
@@ -98,6 +100,10 @@ fun HomeScreen(
             }
             else -> { }
         }
+    }
+
+    LaunchedEffect(uiState.tripState) {
+        if (uiState.tripState.hasRideCompleted()) { onTripCompleted() }
     }
 
     // Local state for the input fields (decoupled from ViewModel until confirmed)
