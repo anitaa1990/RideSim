@@ -50,6 +50,8 @@ fun RideBottomSheetContent(
         )
     } else if (uiState.tripState.hasRideStarted()) {
         RideStartedSection(
+            pickupLocation = uiState.pickupLocation,
+            dropLocation = uiState.dropLocation,
             vehicleDetail = uiState.selectedVehicle
         )
     }

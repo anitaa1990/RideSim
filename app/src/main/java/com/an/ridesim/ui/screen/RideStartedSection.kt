@@ -35,14 +35,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.an.ridesim.R
+import com.an.ridesim.model.LatLngPoint
 import com.an.ridesim.model.VehicleDetail
 import com.an.ridesim.model.getIconId
 import com.an.ridesim.model.getImageId
 import com.an.ridesim.ui.component.DashedDivider
 import com.an.ridesim.ui.component.LicensePlate
+import com.an.ridesim.ui.model.LocationUiModel
+import com.an.ridesim.util.RideUtils
 
 @Composable
 fun RideStartedSection(
+    pickupLocation: LocationUiModel,
+    dropLocation: LocationUiModel,
     vehicleDetail: VehicleDetail
 ) {
     Column(
@@ -62,7 +67,11 @@ fun RideStartedSection(
             price = vehicleDetail.price
         )
 
-        RideAddressSection()
+        // Address section
+        RideAddressSection(
+            pickupLocation = pickupLocation,
+            dropLocation = dropLocation
+        )
     }
 }
 
@@ -112,7 +121,7 @@ private fun VehicleInfoSection(
                     Column {
                         // Driver name
                         Text(
-                            text = "RANGARAJAN R",
+                            text = RideUtils.getRandomDriverName(),
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
@@ -191,7 +200,7 @@ private fun VehicleInfoSection(
                     modifier = Modifier.fillMaxWidth(0.7f).align(Alignment.End)
                 )
                 LicensePlate(
-                    plateNumber = "TN 14 AB 6509",
+                    plateNumber = RideUtils.getRandomPlateForVehicleType(vehicleDetail.vehicleType),
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
@@ -242,7 +251,10 @@ private fun FareEstimateSection(
 }
 
 @Composable
-private fun RideAddressSection() {
+private fun RideAddressSection(
+    pickupLocation: LocationUiModel,
+    dropLocation: LocationUiModel
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -258,9 +270,12 @@ private fun RideAddressSection() {
 
         Column {
             // Pickup Title
-            Column(modifier = Modifier.padding(top = 5.dp, start = 10.dp, end = 10.dp, bottom = 15.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(top = 5.dp, start = 10.dp, end = 10.dp, bottom = 15.dp)
+            ) {
                 Text(
-                    text = "Thoraipakkam",
+                    text = pickupLocation.subLocality ?: "",
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Medium),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -269,7 +284,7 @@ private fun RideAddressSection() {
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
-                    text = "Seevaram, Thoraipakkam, Chennai, Tamil Nadu",
+                    text = pickupLocation.address ?: "",
                     style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -281,7 +296,7 @@ private fun RideAddressSection() {
             // Pickup Title
             Column(modifier = Modifier.padding(top = 15.dp, start = 10.dp, end = 10.dp, bottom = 15.dp)) {
                 Text(
-                    text = "Panaiyur",
+                    text = dropLocation.subLocality ?: "",
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Medium),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -290,7 +305,7 @@ private fun RideAddressSection() {
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
-                    text = "8th Ave, Seashore Town, Panaiyur, Chennai, Tamil Nadu",
+                    text = dropLocation.address ?: "",
                     style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -322,6 +337,15 @@ fun FareEstimateSectionPreview() {
 @Composable
 fun RideAddressSectionPreview() {
     RideAddressSection(
-
+        pickupLocation = LocationUiModel(
+            "Seevaram, Thoraipakkam, Chennai, Tamil Nadhu",
+            "Thoraipakkam",
+            LatLngPoint(12.1, 15.3)
+        ),
+        dropLocation = LocationUiModel(
+            "8th Ave, Seashore Town, Panaiyur, Chennai, Tamil Nadu",
+            "Panaiyur",
+            LatLngPoint(13.5, 16.4)
+        )
     )
 }
