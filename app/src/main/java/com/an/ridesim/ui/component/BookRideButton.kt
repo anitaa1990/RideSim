@@ -89,7 +89,7 @@ fun BookRideButton(
             modifier = Modifier
                 .matchParentSize()
                 .graphicsLayer(scaleX = trackScale, scaleY = 1f) // Scale only the track
-                .background(Color.Black, shape = RoundedCornerShape(10.dp))
+                .background(Color.Black, shape = RoundedCornerShape(12.dp))
         ) {
             // Centered text on the track
             Text(
@@ -163,7 +163,7 @@ fun SliderButton() {
             .wrapContentSize()
             .width(70.dp)
             .height(54.dp)
-            .background(Color(0xFFFAC901), shape = RoundedCornerShape(10.dp)),
+            .background(Color(0xFFF5B63B), shape = RoundedCornerShape(12.dp)),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -175,7 +175,7 @@ fun SliderButton() {
             Image(
                 painter = painterResource(R.drawable.ic_car),
                 contentDescription = "Car Icon",
-                modifier = Modifier.size(25.dp)
+                modifier = Modifier.size(26.dp)
             )
 
             Spacer(modifier = Modifier.width(2.dp))
@@ -183,7 +183,7 @@ fun SliderButton() {
             Image(
                 painter = painterResource(R.drawable.ic_arrow_forward),
                 contentDescription = "Arrow Icon",
-                modifier = Modifier.size(15.dp)
+                modifier = Modifier.size(16.dp)
             )
         }
     }

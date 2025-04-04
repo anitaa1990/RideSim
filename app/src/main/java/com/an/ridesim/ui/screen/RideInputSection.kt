@@ -1,5 +1,6 @@
 package com.an.ridesim.ui.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -214,7 +215,8 @@ fun SuggestionItem(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.fillMaxWidth()
             .padding(vertical = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(width = 1.dp, color = Color(0xFFEBEBEB))
     ) {
         Row(
             modifier = Modifier
@@ -226,7 +228,7 @@ fun SuggestionItem(
             Icon(
                 painter = painterResource(R.drawable.ic_history_24),
                 contentDescription = null,
-                tint = Color(0xFF5F6368),
+                tint = Color(0xFF313131),
                 modifier = Modifier
                     .size(30.dp)
             )

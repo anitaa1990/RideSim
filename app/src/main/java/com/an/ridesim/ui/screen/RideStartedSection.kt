@@ -93,7 +93,7 @@ private fun VehicleInfoSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
+                .padding(bottom = 15.dp, start = 10.dp, end = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -237,7 +237,9 @@ private fun FareEstimateSection(
             // Total Price
             Text(
                 text = String.format(stringResource(R.string.ride_detail_price), price),
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold
+                )
             )
         }
 
@@ -280,7 +282,10 @@ private fun RideAddressSection(
             ) {
                 Text(
                     text = pickupLocation.subLocality ?: "",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Medium),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

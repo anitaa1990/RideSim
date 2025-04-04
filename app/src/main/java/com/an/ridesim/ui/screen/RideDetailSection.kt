@@ -97,7 +97,7 @@ private fun RideDetailTitleSection(
         Icon(
             painter = painterResource(R.drawable.ic_distance),
             contentDescription = stringResource(R.string.content_desc_distance),
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(20.dp),
             tint = Color.Unspecified
         )
 
@@ -146,7 +146,7 @@ fun VehicleListItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 8.dp)
+            .padding(vertical = 10.dp, horizontal = 8.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
