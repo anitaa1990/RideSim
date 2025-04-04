@@ -42,10 +42,12 @@ import com.an.ridesim.model.getImageId
 import com.an.ridesim.ui.component.DashedDivider
 import com.an.ridesim.ui.component.LicensePlate
 import com.an.ridesim.ui.model.LocationUiModel
+import com.an.ridesim.ui.model.RideUiModel
 import com.an.ridesim.util.RideUtils
 
 @Composable
 fun RideStartedSection(
+    rideUiModel: RideUiModel,
     pickupLocation: LocationUiModel,
     dropLocation: LocationUiModel,
     vehicleDetail: VehicleDetail
@@ -59,6 +61,7 @@ fun RideStartedSection(
     ) {
         // Vehicle Info Section
         VehicleInfoSection(
+            rideUiModel = rideUiModel,
             vehicleDetail = vehicleDetail
         )
 
@@ -77,6 +80,7 @@ fun RideStartedSection(
 
 @Composable
 private fun VehicleInfoSection(
+    rideUiModel: RideUiModel,
     vehicleDetail: VehicleDetail
 ) {
     Card(
@@ -121,7 +125,7 @@ private fun VehicleInfoSection(
                     Column {
                         // Driver name
                         Text(
-                            text = RideUtils.getRandomDriverName(),
+                            text = rideUiModel.driverName,
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
@@ -230,14 +234,14 @@ private fun FareEstimateSection(
                 style = MaterialTheme.typography.labelLarge
             )
 
-            // Price
+            // Total Price
             Text(
                 text = String.format(stringResource(R.string.ride_detail_price), price),
                 style = MaterialTheme.typography.labelLarge
             )
         }
 
-        // Vehicle description
+        // Payment type
         Text(
             text = stringResource(id = R.string.ride_started_pay_info),
             style = MaterialTheme.typography.labelMedium.copy(
@@ -321,6 +325,13 @@ private fun RideAddressSection(
 @Composable
 fun VehicleInfoSectionPreview() {
     VehicleInfoSection(
+        rideUiModel = RideUiModel(
+            rideId = RideUtils.generateRandomRideId(),
+            driverName = RideUtils.getRandomDriverName(),
+            distanceInKm = 11.0,
+            durationInMinutes = 23,
+            rideStartTimeString = RideUtils.getRideTimeFormatted()
+        ),
         vehicleDetail = VehicleDetail.getAuto()
     )
 }

@@ -33,4 +33,13 @@
     <string name="btn_book_ride">Slide to book @ \u20B9 %1$,.0f</string>
     <string name="ride_started_estimate_info">Fare estimate</string>
     <string name="ride_started_pay_info">Pay via cash or UPI</string>
+    <string name="ride_summary_title">Ride summary</string>
+    <string name="ride_summary_type">%1$s – OneWay</string>
+    <string name="vehicle_model_label">Vehicle Model</string>
+    <string name="ride_distance_label">Ride Distance</string>
+    <string name="ride_rating_label">Your Rating</string>
+    <string name="ride_driver_label">Driver</string>
+    <string name="ride_time_label">Ride Time</string>
+    <string name="ride_id_label">Ride Id</string>
+    <string name="location_summary_title">Booking Locations</string>
 </resources>
