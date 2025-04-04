@@ -3,6 +3,7 @@ package com.an.ridesim.ui.viewmodel
 import com.an.ridesim.data.PlacesRepository
 import com.an.ridesim.data.RouteRepository
 import com.an.ridesim.model.*
+import com.an.ridesim.ui.model.RideUiModel
 import com.an.ridesim.util.LocationUtils
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.AutocompletePrediction
@@ -135,7 +136,6 @@ class RideViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(VehicleType.SUV, state.selectedVehicle.vehicleType)
-        assertNotNull(state.estimatedFare)
     }
 
     @Test
@@ -248,7 +248,18 @@ class RideViewModelTest {
         val state = viewModel.uiState.value
 
         assertEquals(TripState.IDLE, state.tripState)
-        assertNull(state.estimatedFare)
         assertNull(state.carPosition)
+        assertNull(state.pickupLocation)
+        assertNull(state.dropLocation)
+        assertEquals(0, state.pickupSuggestions.size)
+        assertEquals(0, state.dropSuggestions.size)
+        assertEquals(0, state.routePolyline.size)
+        assertEquals(0, state.availableVehicles.size)
+        assertEquals(VehicleDetail.getAuto(), state.selectedVehicle)
+        assertEquals(RideUiModel(), state.rideUiModel)
+        assertNull(state.locationError)
+        assertNull(state.routeError)
+        assertNull(state.carRotation)
+        assertEquals(AddressFieldType.NONE, state.focusedField)
     }
 }
