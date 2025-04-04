@@ -155,7 +155,10 @@ class RideViewModel @Inject constructor(
                 }
 
                 result?.let {
-                    val polylinePoints = it.routePoints.map { pt -> LatLng(pt.latitude, pt.longitude) }
+                    val polylinePoints = it.routePoints.map {
+                        pt -> LatLng(pt.latitude, pt.longitude)
+                    }
+                    val vehicleDetails = fetchVehicleDetails()
 
                     _uiState.update { state ->
                         state.copy(
@@ -167,7 +170,8 @@ class RideViewModel @Inject constructor(
                                 rideStartTimeString = RideUtils.getRideTimeFormatted()
                             ),
                             routePolyline = polylinePoints,
-                            availableVehicles = fetchVehicleDetails()
+                            availableVehicles = vehicleDetails,
+                            selectedVehicle = vehicleDetails.first()
                         )
                     }
                 }

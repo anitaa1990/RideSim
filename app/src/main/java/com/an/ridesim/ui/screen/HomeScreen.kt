@@ -195,7 +195,7 @@ fun HomeScreen(
                 modifier = Modifier.align(Alignment.BottomCenter)
                     .fillMaxWidth()
             ) {
-                BookRideSection(191.0) { viewModel.startRideSimulation() }
+                BookRideSection(uiState.selectedVehicle.price) { viewModel.startRideSimulation() }
             }
         }
     }
