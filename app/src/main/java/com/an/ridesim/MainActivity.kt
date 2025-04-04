@@ -32,7 +32,6 @@ class MainActivity : ComponentActivity() {
                     startDestination = navDestinationHome
                 ) {
                     composable(navDestinationHome) {
-                        viewModel.resetSimulation()
                         HomeScreen(viewModel) {
                             navController.navigate(navDestinationSummary) {
                                 popUpTo(navDestinationHome) { inclusive = true }
@@ -40,7 +39,12 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable(navDestinationSummary) {
-                        RideSummaryScreen(viewModel)
+                        RideSummaryScreen(viewModel) {
+                            viewModel.resetSimulation()
+                            navController.navigate(navDestinationHome) {
+                                popUpTo(navDestinationSummary) { inclusive = true }
+                            }
+                        }
                     }
                 }
             }
