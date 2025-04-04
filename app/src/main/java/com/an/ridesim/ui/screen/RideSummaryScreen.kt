@@ -61,7 +61,7 @@ fun RideSummaryScreen(
         // Title
         Text(
             text = stringResource(R.string.ride_summary_title),
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
             modifier = Modifier.padding(10.dp)
         )
 
@@ -92,9 +92,10 @@ private fun RideSummarySection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+            .padding(vertical = 12.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -122,7 +123,7 @@ private fun RideSummarySection(
                     Text(
                         text = RideUtils.getCurrentDateTimeFormatted(),
                         style = MaterialTheme.typography.bodyLarge
-                            .copy(fontWeight = FontWeight.Medium)
+                            .copy(fontWeight = FontWeight.SemiBold)
                     )
 
                     // Total Price
@@ -130,9 +131,10 @@ private fun RideSummarySection(
                         text = String.format(
                             stringResource(R.string.ride_detail_price), vehicle.price
                         ),
-                        style = MaterialTheme.typography.bodyLarge.copy(
+                        style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
-                        )
+                        ),
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
 
@@ -141,8 +143,8 @@ private fun RideSummarySection(
                     text = String.format(
                         stringResource(R.string.ride_summary_type), vehicle.vehicleType.name
                     ),
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        color = Color(0xFF5F6368)
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = Color(0xFF7B8997)
                     ),
                     modifier = Modifier.padding(top = 5.dp)
                 )
@@ -159,9 +161,10 @@ private fun VehicleSummarySection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+            .padding(vertical = 12.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -250,17 +253,18 @@ private fun LocationSummarySection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+            .padding(vertical = 12.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier
-            .padding(bottom = 16.dp, start = 16.dp, top = 12.dp, end = 16.dp)
+            .padding(bottom = 16.dp, start = 16.dp, top = 14.dp, end = 16.dp)
         ) {
 
             Text(
                 text = stringResource(R.string.location_summary_title),
-                style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF5F6368))
+                style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF7B8997))
             )
 
             Spacer(Modifier.height(15.dp))
@@ -282,46 +286,48 @@ private fun LocationSummarySection(
                     Text(
                         text = rideUiModel.rideStartTimeString,
                         style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF202124)
                         )
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = pickupLocation?.subLocality ?: "",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF5F6368),
+                            color = Color(0xFF7B8997),
                             fontSize = 13.sp
                         ),
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                     Text(
                         text = pickupLocation?.address ?: "",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF5F6368),
+                            color = Color(0xFF7B8997),
                             fontSize = 13.sp
                         ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    Spacer(Modifier.height(14.dp))
+                    Spacer(Modifier.height(16.dp))
 
                     // Drop
                     Text(
                         text = RideUtils.getRideTimeFormatted(),
                         style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF202124)
                         )
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = dropLocation?.subLocality ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF7B8997)),
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                     Text(
                         text = dropLocation?.address ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF7B8997)),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

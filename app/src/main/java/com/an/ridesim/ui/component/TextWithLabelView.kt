@@ -17,11 +17,14 @@ fun TextWithLabelView(
 ) {
     Text(
         text = label,
-        style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF5F6368))
+        style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF7B8997))
     )
-    Spacer(modifier = Modifier.height(4.dp))
+    Spacer(modifier = Modifier.height(5.dp))
     Text(
         text = text,
-        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
+        style = MaterialTheme.typography.bodyMedium.copy(
+            fontWeight = FontWeight.Medium,
+            color = Color(0XFF14171F)
+        )
     )
 }
