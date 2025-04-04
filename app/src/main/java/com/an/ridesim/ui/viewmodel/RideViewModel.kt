@@ -312,8 +312,20 @@ class RideViewModel @Inject constructor(
     fun resetSimulation() {
         _uiState.update {
             it.copy(
+                pickupLocation = null,
+                dropLocation = null,
+                pickupSuggestions = emptyList(),
+                dropSuggestions = emptyList(),
                 tripState = TripState.IDLE,
-                carPosition = null
+                carPosition = null,
+                selectedVehicle = VehicleDetail.getAuto(),
+                rideUiModel = RideUiModel(),
+                routePolyline = emptyList(),
+                locationError = null,
+                routeError = null,
+                focusedField = AddressFieldType.NONE,
+                availableVehicles = emptyList(),
+                carRotation = null
             )
         }
     }

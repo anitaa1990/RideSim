@@ -42,4 +42,5 @@
     <string name="ride_time_label">Ride Time</string>
     <string name="ride_id_label">Ride Id</string>
     <string name="location_summary_title">Booking Locations</string>
+    <string name="btn_home">Start another trip</string>
 </resources>
