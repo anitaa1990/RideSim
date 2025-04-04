@@ -94,6 +94,42 @@ class RideViewModelTest {
     }
 
     @Test
+    fun `selectPlace triggers calculateRouteAndFare and updates routePolyline and rideUiModel`() = runTest {
+        val pickupLatLng = LatLng(13.0, 80.0)
+        val dropLatLng = LatLng(13.02, 80.02)
+        val mockPath = listOf(pickupLatLng, dropLatLng)
+        val mockRoute = RouteInfo(distanceInKm = 4.2, durationInMinutes = 11.0, routePoints = mockPath)
+
+        whenever(placesRepository.resolvePlaceId("pickup"))
+            .thenReturn(Triple(pickupLatLng, "Pickup Address", "Taramani"))
+        whenever(placesRepository.resolvePlaceId("drop"))
+            .thenReturn(Triple(dropLatLng, "Drop Address", "Guindy"))
+        whenever(routeRepository.getRoute(any(), any())).thenReturn(mockRoute)
+
+        viewModel.selectPlace("pickup", true)
+        viewModel.selectPlace("drop", false)
+        runCurrent()
+
+        val state = viewModel.uiState.value
+
+        // Assert route polyline is populated
+        assertEquals(2, state.routePolyline.size)
+        assertEquals(mockPath[0].latitude, state.routePolyline[0].latitude, 0.0001)
+        assertEquals(mockPath[1].longitude, state.routePolyline[1].longitude, 0.0001)
+
+        // Assert rideUiModel is populated
+        val ride = state.rideUiModel
+        assertNotNull(ride.rideId)
+        assertTrue(ride.rideId.length >= 6)
+
+        assertEquals(4.2, ride.distanceInKm!!, 0.01)
+        assertEquals(11, ride.durationInMinutes)
+        assertNotNull(ride.driverName)
+        assertNotNull(ride.rideStartTimeString)
+        assertTrue(ride.driverName.isNotEmpty())
+    }
+
+    @Test
     fun `selectPlace handles route error gracefully`() = runTest {
         val pickupLatLng = LatLng(13.0, 80.0)
         val dropLatLng = LatLng(13.01, 80.01)
