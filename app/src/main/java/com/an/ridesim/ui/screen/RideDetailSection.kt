@@ -1,5 +1,7 @@
 package com.an.ridesim.ui.screen
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -98,18 +100,11 @@ private fun RideDetailTitleSection(
         Spacer(modifier = Modifier.weight(1f))
 
         // Distance with Icon
-        Icon(
-            painter = painterResource(R.drawable.ic_distance),
-            contentDescription = stringResource(R.string.content_desc_distance),
-            modifier = Modifier.size(20.dp),
-            tint = Color.Unspecified
-        )
-
-        Spacer(modifier = Modifier.width(5.dp))
-
-        Text(
-            text = String.format(stringResource(R.string.ride_detail_distance), distanceInKm),
-            style = tertiaryTextStyle()
+        IconWithText(
+            iconId = R.drawable.ic_distance,
+            iconContentDesc = R.string.content_desc_distance,
+            tintColor = Color.Unspecified,
+            text = String.format(stringResource(R.string.ride_detail_distance), distanceInKm)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -123,18 +118,11 @@ private fun RideDetailTitleSection(
         Spacer(modifier = Modifier.width(8.dp))
 
         // Time with Icon
-        Icon(
-            painter = painterResource(R.drawable.ic_history_24),
-            contentDescription = stringResource(R.string.content_desc_time),
-            modifier = Modifier.size(16.dp),
-            tint = MaterialTheme.colorScheme.outlineVariant
-        )
-
-        Spacer(modifier = Modifier.width(5.dp))
-
-        Text(
-            text = String.format(stringResource(R.string.ride_detail_time), durationInMinutes),
-            style = tertiaryTextStyle()
+        IconWithText(
+            iconId = R.drawable.ic_history_24,
+            iconContentDesc = R.string.content_desc_time,
+            tintColor = MaterialTheme.colorScheme.outlineVariant,
+            text = String.format(stringResource(R.string.ride_detail_time), durationInMinutes)
         )
     }
 }
@@ -230,4 +218,26 @@ fun VehicleListItem(
             }
         }
     }
+}
+
+@Composable
+private fun IconWithText(
+    @DrawableRes iconId: Int,
+    @StringRes iconContentDesc: Int,
+    tintColor: Color,
+    text: String
+) {
+    Icon(
+        painter = painterResource(iconId),
+        contentDescription = stringResource(iconContentDesc),
+        modifier = Modifier.size(20.dp),
+        tint = tintColor
+    )
+
+    Spacer(modifier = Modifier.width(5.dp))
+
+    Text(
+        text = text,
+        style = tertiaryTextStyle()
+    )
 }

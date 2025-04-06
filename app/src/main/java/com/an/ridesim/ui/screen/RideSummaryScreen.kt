@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.ridesim.R
@@ -277,7 +276,12 @@ private fun LocationSummarySection(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier
-            .padding(bottom = 16.dp, start = 16.dp, top = 14.dp, end = 16.dp)
+            .padding(
+                bottom = 16.dp,
+                start = 16.dp,
+                top = 14.dp,
+                end = 16.dp
+            )
         ) {
 
             Text(
@@ -301,52 +305,51 @@ private fun LocationSummarySection(
 
                 Column {
                     // Pickup
-                    Text(
-                        text = rideUiModel.rideStartTimeString,
-                        style = tertiaryTextStyle(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = pickupLocation?.subLocality ?: "",
-                        style = tertiaryTextStyle(fontSize = 13.sp),
-                        modifier = Modifier.padding(bottom = 1.dp)
-                    )
-                    Text(
-                        text = pickupLocation?.address ?: "",
-                        style = tertiaryTextStyle(fontSize = 13.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                    LocationText(
+                        timeString = rideUiModel.rideStartTimeString,
+                        subLocality = pickupLocation?.subLocality,
+                        address = pickupLocation?.address
                     )
 
                     Spacer(Modifier.height(16.dp))
 
                     // Drop
-                    Text(
-                        text = RideUtils.getRideTimeFormatted(),
-                        style = tertiaryTextStyle(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = dropLocation?.subLocality ?: "",
-                        style = tertiaryTextStyle(),
-                        modifier = Modifier.padding(bottom = 1.dp)
-                    )
-                    Text(
-                        text = dropLocation?.address ?: "",
-                        style = tertiaryTextStyle(),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                    LocationText(
+                        timeString = RideUtils.getRideTimeFormatted(),
+                        subLocality = dropLocation?.subLocality,
+                        address = dropLocation?.address
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun LocationText(
+    timeString: String,
+    subLocality: String?,
+    address: String?
+) {
+    Text(
+        text = timeString,
+        style = tertiaryTextStyle(
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.SemiBold
+        )
+    )
+    Spacer(Modifier.height(4.dp))
+    Text(
+        text = subLocality ?: "",
+        style = tertiaryTextStyle(),
+        modifier = Modifier.padding(bottom = 1.dp)
+    )
+    Text(
+        text = address ?: "",
+        style = tertiaryTextStyle(),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Preview(showBackground = true)
