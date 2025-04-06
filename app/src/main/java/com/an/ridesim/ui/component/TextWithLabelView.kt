@@ -6,9 +6,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.an.ridesim.ui.theme.secondaryTextStyle
+import com.an.ridesim.ui.theme.subTitleTextStyle
 
 @Composable
 fun TextWithLabelView(
@@ -17,14 +17,11 @@ fun TextWithLabelView(
 ) {
     Text(
         text = label,
-        style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF7B8997))
+        style = subTitleTextStyle(color = MaterialTheme.colorScheme.outlineVariant)
     )
     Spacer(modifier = Modifier.height(5.dp))
     Text(
         text = text,
-        style = MaterialTheme.typography.bodyMedium.copy(
-            fontWeight = FontWeight.Medium,
-            color = Color(0XFF14171F)
-        )
+        style = secondaryTextStyle(color = MaterialTheme.colorScheme.tertiaryContainer)
     )
 }

@@ -43,6 +43,10 @@ import com.an.ridesim.ui.component.DashedDivider
 import com.an.ridesim.ui.component.LicensePlate
 import com.an.ridesim.ui.model.LocationUiModel
 import com.an.ridesim.ui.model.RideUiModel
+import com.an.ridesim.ui.theme.primaryTextStyle
+import com.an.ridesim.ui.theme.subTitleTextStyle
+import com.an.ridesim.ui.theme.tertiaryTextStyle
+import com.an.ridesim.ui.theme.titleTextStyle
 import com.an.ridesim.util.RideUtils
 
 @Composable
@@ -56,7 +60,7 @@ fun RideStartedSection(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(Color(0XFFF2F1F4))
+            .background(MaterialTheme.colorScheme.background)
             .padding(start = 10.dp, end = 10.dp, bottom = 16.dp)
     ) {
         // Vehicle Info Section
@@ -88,12 +92,12 @@ private fun VehicleInfoSection(
             .fillMaxWidth()
             .padding(5.dp),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
+                .padding(bottom = 15.dp, start = 10.dp, end = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -109,9 +113,9 @@ private fun VehicleInfoSection(
                             .width(65.dp)
                             .height(48.dp)
                             .background(Color.Transparent) // Outer box
-                            .border(2.dp, Color(0xFF2962FF), RoundedCornerShape(50)) // Blue border
+                            .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50)) // Blue border
                             .padding(3.dp) // <- Adds space between border and yellow bg
-                            .background(Color(0xFFFFEB3B), RoundedCornerShape(50)) // Yellow fill
+                            .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(50)) // Yellow fill
                             .clip(RoundedCornerShape(50)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -126,7 +130,7 @@ private fun VehicleInfoSection(
                         // Driver name
                         Text(
                             text = rideUiModel.driverName,
-                            style = MaterialTheme.typography.labelLarge,
+                            style = titleTextStyle(),
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
 
@@ -142,13 +146,13 @@ private fun VehicleInfoSection(
                                 imageVector = Icons.Default.Star,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
-                                tint = Color(0xFF4D4D4D)
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "5",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = Color(0xFF4D4D4D)
+                                style = titleTextStyle(),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -168,28 +172,24 @@ private fun VehicleInfoSection(
                         painter = painterResource(vehicleDetail.vehicleType.getIconId()),
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = Color(0xFF5F6368)
+                        tint = MaterialTheme.colorScheme.outline
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
                         vehicleDetail.vehicleType.name,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF5F6368)
-                        )
+                        style = tertiaryTextStyle(color = MaterialTheme.colorScheme.outline)
                     )
                     Spacer(Modifier.width(15.dp))
                     Icon(
                         painter = painterResource(R.drawable.ic_people),
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = Color(0xFF5F6368)
+                        tint = MaterialTheme.colorScheme.outline
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = stringResource(vehicleDetail.peopleCount),
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = Color(0xFF5F6368)
-                        ),
+                        style = subTitleTextStyle(),
                     )
                 }
 
@@ -231,22 +231,20 @@ private fun FareEstimateSection(
             // Fare estimate title
             Text(
                 text = stringResource(id = R.string.ride_started_estimate_info),
-                style = MaterialTheme.typography.labelLarge
+                style = titleTextStyle()
             )
 
             // Total Price
             Text(
                 text = String.format(stringResource(R.string.ride_detail_price), price),
-                style = MaterialTheme.typography.labelLarge
+                style = titleTextStyle(fontWeight = FontWeight.Bold)
             )
         }
 
         // Payment type
         Text(
             text = stringResource(id = R.string.ride_started_pay_info),
-            style = MaterialTheme.typography.labelMedium.copy(
-                color = Color(0xFF5F6368)
-            ),
+            style = subTitleTextStyle(),
             modifier = Modifier.padding(top = 6.dp, bottom = 12.dp)
         )
 
@@ -280,7 +278,10 @@ private fun RideAddressSection(
             ) {
                 Text(
                     text = pickupLocation.subLocality ?: "",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Medium),
+                    style = primaryTextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -289,7 +290,7 @@ private fun RideAddressSection(
 
                 Text(
                     text = pickupLocation.address ?: "",
-                    style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
+                    style = tertiaryTextStyle(color = MaterialTheme.colorScheme.outline),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -301,7 +302,7 @@ private fun RideAddressSection(
             Column(modifier = Modifier.padding(top = 15.dp, start = 10.dp, end = 10.dp, bottom = 15.dp)) {
                 Text(
                     text = dropLocation.subLocality ?: "",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Medium),
+                    style = primaryTextStyle(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -310,7 +311,7 @@ private fun RideAddressSection(
 
                 Text(
                     text = dropLocation.address ?: "",
-                    style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
+                    style = tertiaryTextStyle(color = MaterialTheme.colorScheme.outline),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

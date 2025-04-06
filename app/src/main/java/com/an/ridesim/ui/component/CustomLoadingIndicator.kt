@@ -4,10 +4,10 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -19,7 +19,7 @@ import androidx.compose.ui.util.lerp
 @Composable
 fun CustomLoadingIndicator(
     size: Int = 8,  // Size of the indicator
-    color: Color = Color.White,  // Color of the dots,
+    color: Color = MaterialTheme.colorScheme.onPrimary,  // Color of the dots,
     modifier: Modifier = Modifier
 ) {
     // Infinite transition for animations
@@ -101,5 +101,5 @@ fun CustomLoadingIndicator(
 @Preview(showBackground = true)
 @Composable
 fun LoadingIndicatorPreview() {
-    CustomLoadingIndicator(size = 8, color = Color.Black)
+    CustomLoadingIndicator(size = 8, color = MaterialTheme.colorScheme.onPrimaryContainer)
 }

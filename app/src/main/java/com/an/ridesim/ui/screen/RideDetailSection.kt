@@ -1,5 +1,7 @@
 package com.an.ridesim.ui.screen
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,6 +34,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.an.ridesim.R
 import com.an.ridesim.model.VehicleDetail
+import com.an.ridesim.ui.theme.heading3TextStyle
+import com.an.ridesim.ui.theme.subTitleTextStyle
+import com.an.ridesim.ui.theme.tertiaryTextStyle
+import com.an.ridesim.ui.theme.titleTextStyle
 import com.an.ridesim.ui.viewmodel.RideViewModel.RideUiState
 
 @Composable
@@ -50,7 +56,7 @@ fun RideDetailSection(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(Color(0XFFF2F1F4))
+            .background(MaterialTheme.colorScheme.background)
             .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
             .imePadding()
     ) {
@@ -88,24 +94,17 @@ private fun RideDetailTitleSection(
         // Title
         Text(
             text = stringResource(R.string.ride_detail_title),
-            style = MaterialTheme.typography.labelSmall
+            style = heading3TextStyle(color = MaterialTheme.colorScheme.onError)
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         // Distance with Icon
-        Icon(
-            painter = painterResource(R.drawable.ic_distance),
-            contentDescription = stringResource(R.string.content_desc_distance),
-            modifier = Modifier.size(18.dp),
-            tint = Color.Unspecified
-        )
-
-        Spacer(modifier = Modifier.width(5.dp))
-
-        Text(
-            text = String.format(stringResource(R.string.ride_detail_distance), distanceInKm),
-            style = MaterialTheme.typography.bodySmall
+        IconWithText(
+            iconId = R.drawable.ic_distance,
+            iconContentDesc = R.string.content_desc_distance,
+            tintColor = Color.Unspecified,
+            text = String.format(stringResource(R.string.ride_detail_distance), distanceInKm)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -113,24 +112,17 @@ private fun RideDetailTitleSection(
         Box(
             modifier = Modifier
                 .size(4.dp)
-                .background(Color(0xFF5F6368), CircleShape)
+                .background(MaterialTheme.colorScheme.outline, CircleShape)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
 
         // Time with Icon
-        Icon(
-            painter = painterResource(R.drawable.ic_history_24),
-            contentDescription = stringResource(R.string.content_desc_time),
-            modifier = Modifier.size(16.dp),
-            tint = Color(0xFF7B8997)
-        )
-
-        Spacer(modifier = Modifier.width(5.dp))
-
-        Text(
-            text = String.format(stringResource(R.string.ride_detail_time), durationInMinutes),
-            style = MaterialTheme.typography.bodySmall
+        IconWithText(
+            iconId = R.drawable.ic_history_24,
+            iconContentDesc = R.string.content_desc_time,
+            tintColor = MaterialTheme.colorScheme.outlineVariant,
+            text = String.format(stringResource(R.string.ride_detail_time), durationInMinutes)
         )
     }
 }
@@ -141,15 +133,15 @@ fun VehicleListItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val borderColor = if (isSelected) Color(0xFFFAC901) else Color.Transparent
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.secondary else Color.Transparent
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 8.dp)
+            .padding(vertical = 10.dp, horizontal = 8.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         border = BorderStroke(1.dp, borderColor)
     ) {
         Row(
@@ -177,13 +169,13 @@ fun VehicleListItem(
                     // Vehicle name
                     Text(
                         text = stringResource(id = vehicle.displayNameId),
-                        style = MaterialTheme.typography.labelLarge
+                        style = titleTextStyle()
                     )
 
                     // Price
                     Text(
                         text = String.format(stringResource(R.string.ride_detail_price), vehicle.price),
-                        style = MaterialTheme.typography.labelLarge
+                        style = titleTextStyle()
                     )
                 }
 
@@ -194,9 +186,7 @@ fun VehicleListItem(
                     // Vehicle description
                     Text(
                         text = stringResource(id = vehicle.descriptionId),
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = Color(0xFF5F6368)
-                        )
+                        style = subTitleTextStyle()
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -205,7 +195,7 @@ fun VehicleListItem(
                     Box(
                         modifier = Modifier
                             .size(4.dp)
-                            .background(Color(0xFF5F6368), CircleShape)
+                            .background(MaterialTheme.colorScheme.outline, CircleShape)
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -222,12 +212,32 @@ fun VehicleListItem(
                     // People Count
                     Text(
                         text = stringResource(vehicle.peopleCount),
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = Color(0xFF5F6368)
-                        ),
+                        style = subTitleTextStyle(),
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun IconWithText(
+    @DrawableRes iconId: Int,
+    @StringRes iconContentDesc: Int,
+    tintColor: Color,
+    text: String
+) {
+    Icon(
+        painter = painterResource(iconId),
+        contentDescription = stringResource(iconContentDesc),
+        modifier = Modifier.size(20.dp),
+        tint = tintColor
+    )
+
+    Spacer(modifier = Modifier.width(5.dp))
+
+    Text(
+        text = text,
+        style = tertiaryTextStyle()
+    )
 }

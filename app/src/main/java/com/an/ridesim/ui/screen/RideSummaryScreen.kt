@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.ridesim.R
@@ -43,6 +42,12 @@ import com.an.ridesim.model.VehicleDetail
 import com.an.ridesim.ui.component.TextWithLabelView
 import com.an.ridesim.ui.model.LocationUiModel
 import com.an.ridesim.ui.model.RideUiModel
+import com.an.ridesim.ui.theme.heading3TextStyle
+import com.an.ridesim.ui.theme.headlineStyle
+import com.an.ridesim.ui.theme.primaryTextStyle
+import com.an.ridesim.ui.theme.subTitleTextStyle
+import com.an.ridesim.ui.theme.tertiaryTextStyle
+import com.an.ridesim.ui.theme.titleTextStyle
 import com.an.ridesim.ui.viewmodel.RideViewModel
 import com.an.ridesim.util.RideUtils
 
@@ -64,7 +69,7 @@ fun RideSummaryScreen(
         // Title
         Text(
             text = stringResource(R.string.ride_summary_title),
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            style = titleTextStyle(),
             modifier = Modifier.padding(10.dp)
         )
 
@@ -96,10 +101,9 @@ fun RideSummaryScreen(
         ) {
             Text(
                 text = stringResource(R.string.btn_home),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    textDecoration = TextDecoration.Underline,
-                    color = Color.Black
-                )
+                style = primaryTextStyle(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                ).copy(textDecoration = TextDecoration.Underline)
             )
         }
     }
@@ -114,7 +118,7 @@ private fun RideSummarySection(
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -142,8 +146,7 @@ private fun RideSummarySection(
                     // Trip date + time
                     Text(
                         text = RideUtils.getCurrentDateTimeFormatted(),
-                        style = MaterialTheme.typography.bodyLarge
-                            .copy(fontWeight = FontWeight.SemiBold)
+                        style = primaryTextStyle(fontWeight = FontWeight.SemiBold)
                     )
 
                     // Total Price
@@ -151,9 +154,7 @@ private fun RideSummarySection(
                         text = String.format(
                             stringResource(R.string.ride_detail_price), vehicle.price
                         ),
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
+                        style = headlineStyle(),
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
@@ -163,9 +164,7 @@ private fun RideSummarySection(
                     text = String.format(
                         stringResource(R.string.ride_summary_type), vehicle.vehicleType.name
                     ),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        color = Color(0xFF7B8997)
-                    ),
+                    style = heading3TextStyle(),
                     modifier = Modifier.padding(top = 5.dp)
                 )
             }
@@ -183,7 +182,7 @@ private fun VehicleSummarySection(
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -214,9 +213,7 @@ private fun VehicleSummarySection(
 
                 Text(
                     text = stringResource(R.string.ride_rating_label),
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        color = Color(0xFF5F6368)
-                    )
+                    style = subTitleTextStyle()
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -226,7 +223,7 @@ private fun VehicleSummarySection(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = null,
-                            tint = Color(0xFFFFC107),
+                            tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(25.dp)
                         )
                     }
@@ -275,16 +272,21 @@ private fun LocationSummarySection(
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier
-            .padding(bottom = 16.dp, start = 16.dp, top = 14.dp, end = 16.dp)
+            .padding(
+                bottom = 16.dp,
+                start = 16.dp,
+                top = 14.dp,
+                end = 16.dp
+            )
         ) {
 
             Text(
                 text = stringResource(R.string.location_summary_title),
-                style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF7B8997))
+                style = heading3TextStyle()
             )
 
             Spacer(Modifier.height(15.dp))
@@ -303,58 +305,51 @@ private fun LocationSummarySection(
 
                 Column {
                     // Pickup
-                    Text(
-                        text = rideUiModel.rideStartTimeString,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF202124)
-                        )
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = pickupLocation?.subLocality ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF7B8997),
-                            fontSize = 13.sp
-                        ),
-                        modifier = Modifier.padding(bottom = 1.dp)
-                    )
-                    Text(
-                        text = pickupLocation?.address ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF7B8997),
-                            fontSize = 13.sp
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                    LocationText(
+                        timeString = rideUiModel.rideStartTimeString,
+                        subLocality = pickupLocation?.subLocality,
+                        address = pickupLocation?.address
                     )
 
                     Spacer(Modifier.height(16.dp))
 
                     // Drop
-                    Text(
-                        text = RideUtils.getRideTimeFormatted(),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF202124)
-                        )
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = dropLocation?.subLocality ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF7B8997)),
-                        modifier = Modifier.padding(bottom = 1.dp)
-                    )
-                    Text(
-                        text = dropLocation?.address ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF7B8997)),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                    LocationText(
+                        timeString = RideUtils.getRideTimeFormatted(),
+                        subLocality = dropLocation?.subLocality,
+                        address = dropLocation?.address
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun LocationText(
+    timeString: String,
+    subLocality: String?,
+    address: String?
+) {
+    Text(
+        text = timeString,
+        style = tertiaryTextStyle(
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.SemiBold
+        )
+    )
+    Spacer(Modifier.height(4.dp))
+    Text(
+        text = subLocality ?: "",
+        style = tertiaryTextStyle(),
+        modifier = Modifier.padding(bottom = 1.dp)
+    )
+    Text(
+        text = address ?: "",
+        style = tertiaryTextStyle(),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Preview(showBackground = true)

@@ -13,8 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.an.ridesim.ui.theme.primaryTextStyle
 
 @Composable
 fun LicensePlate(
@@ -25,18 +25,16 @@ fun LicensePlate(
         modifier = modifier
     ) {
         Card(
-            border = BorderStroke(2.dp, Color(0xFF454C55)),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.errorContainer),
             shape = RoundedCornerShape(3.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFDCB6B)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.error),
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .heightIn(min = 30.dp)
         ) {
             Text(
                 plateNumber,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = Color(0xFF454C55)
-                ),
+                style = primaryTextStyle(color = MaterialTheme.colorScheme.errorContainer),
                 modifier = Modifier.padding(5.dp).align(Alignment.CenterHorizontally)
             )
         }

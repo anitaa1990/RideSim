@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -25,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.an.ridesim.R
+import com.an.ridesim.ui.theme.primaryTextStyle
 import kotlinx.coroutines.delay
 
 @Composable
@@ -89,14 +89,15 @@ fun BookRideButton(
             modifier = Modifier
                 .matchParentSize()
                 .graphicsLayer(scaleX = trackScale, scaleY = 1f) // Scale only the track
-                .background(Color.Black, shape = RoundedCornerShape(10.dp))
+                .background(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = RoundedCornerShape(12.dp)
+                )
         ) {
             // Centered text on the track
             Text(
                 text = String.format(stringResource(R.string.btn_book_ride), price),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = Color(0xFFFAC901)
-                ),
+                style = primaryTextStyle(color = MaterialTheme.colorScheme.secondary),
                 modifier = Modifier.align(Alignment.Center)
                     .alpha(textAlpha), // Apply alpha based on drag progress
             )
@@ -144,7 +145,10 @@ fun BookRideButton(
                 modifier = Modifier
                     .size(55.dp)
                     .align(Alignment.Center)
-                    .background(color = Color.Black, shape = CircleShape)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = CircleShape
+                    )
             ) {
                 if (showLoadingIndicator) {
                     CustomLoadingIndicator(
@@ -163,7 +167,10 @@ fun SliderButton() {
             .wrapContentSize()
             .width(70.dp)
             .height(54.dp)
-            .background(Color(0xFFFAC901), shape = RoundedCornerShape(10.dp)),
+            .background(
+                color = MaterialTheme.colorScheme.inversePrimary,
+                shape = RoundedCornerShape(12.dp)
+            ),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -175,7 +182,7 @@ fun SliderButton() {
             Image(
                 painter = painterResource(R.drawable.ic_car),
                 contentDescription = "Car Icon",
-                modifier = Modifier.size(25.dp)
+                modifier = Modifier.size(26.dp)
             )
 
             Spacer(modifier = Modifier.width(2.dp))
@@ -183,7 +190,7 @@ fun SliderButton() {
             Image(
                 painter = painterResource(R.drawable.ic_arrow_forward),
                 contentDescription = "Arrow Icon",
-                modifier = Modifier.size(15.dp)
+                modifier = Modifier.size(16.dp)
             )
         }
     }
