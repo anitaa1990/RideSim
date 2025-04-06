@@ -43,6 +43,7 @@ import com.an.ridesim.model.VehicleDetail
 import com.an.ridesim.ui.component.TextWithLabelView
 import com.an.ridesim.ui.model.LocationUiModel
 import com.an.ridesim.ui.model.RideUiModel
+import com.an.ridesim.ui.theme.headlineStyle
 import com.an.ridesim.ui.viewmodel.RideViewModel
 import com.an.ridesim.util.RideUtils
 
@@ -151,9 +152,7 @@ private fun RideSummarySection(
                         text = String.format(
                             stringResource(R.string.ride_detail_price), vehicle.price
                         ),
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
+                        style = headlineStyle(),
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
