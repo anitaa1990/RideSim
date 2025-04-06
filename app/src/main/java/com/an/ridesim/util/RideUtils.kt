@@ -96,4 +96,8 @@ object RideUtils {
             .map { charset.random() }
             .joinToString("")
     }
+
+    fun generateSixDigitOtp(): String {
+        return (100000..999999).random().toString()
+    }
 }

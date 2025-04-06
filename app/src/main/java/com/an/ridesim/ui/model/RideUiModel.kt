@@ -6,4 +6,5 @@ data class RideUiModel(
     val distanceInKm: Double? = null,
     val durationInMinutes: Int? = null,
     val rideStartTimeString: String = "",
+    val otp: String? = null
 )
