@@ -32,6 +32,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.an.ridesim.R
 import com.an.ridesim.model.VehicleDetail
+import com.an.ridesim.ui.theme.heading3TextStyle
+import com.an.ridesim.ui.theme.subTitleTextStyle
+import com.an.ridesim.ui.theme.tertiaryTextStyle
+import com.an.ridesim.ui.theme.titleTextStyle
 import com.an.ridesim.ui.viewmodel.RideViewModel.RideUiState
 
 @Composable
@@ -88,7 +92,7 @@ private fun RideDetailTitleSection(
         // Title
         Text(
             text = stringResource(R.string.ride_detail_title),
-            style = MaterialTheme.typography.labelSmall
+            style = heading3TextStyle(color = MaterialTheme.colorScheme.onError)
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -105,7 +109,7 @@ private fun RideDetailTitleSection(
 
         Text(
             text = String.format(stringResource(R.string.ride_detail_distance), distanceInKm),
-            style = MaterialTheme.typography.bodySmall
+            style = tertiaryTextStyle()
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -130,7 +134,7 @@ private fun RideDetailTitleSection(
 
         Text(
             text = String.format(stringResource(R.string.ride_detail_time), durationInMinutes),
-            style = MaterialTheme.typography.bodySmall
+            style = tertiaryTextStyle()
         )
     }
 }
@@ -177,13 +181,13 @@ fun VehicleListItem(
                     // Vehicle name
                     Text(
                         text = stringResource(id = vehicle.displayNameId),
-                        style = MaterialTheme.typography.labelLarge
+                        style = titleTextStyle()
                     )
 
                     // Price
                     Text(
                         text = String.format(stringResource(R.string.ride_detail_price), vehicle.price),
-                        style = MaterialTheme.typography.labelLarge
+                        style = titleTextStyle()
                     )
                 }
 
@@ -194,9 +198,7 @@ fun VehicleListItem(
                     // Vehicle description
                     Text(
                         text = stringResource(id = vehicle.descriptionId),
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = MaterialTheme.colorScheme.outline
-                        )
+                        style = subTitleTextStyle()
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -222,9 +224,7 @@ fun VehicleListItem(
                     // People Count
                     Text(
                         text = stringResource(vehicle.peopleCount),
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = MaterialTheme.colorScheme.outline
-                        ),
+                        style = subTitleTextStyle(),
                     )
                 }
             }

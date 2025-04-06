@@ -26,11 +26,13 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.an.ridesim.R
 import com.an.ridesim.ui.component.CustomTitle
+import com.an.ridesim.ui.theme.primaryTextStyle
+import com.an.ridesim.ui.theme.secondaryTextStyle
+import com.an.ridesim.ui.theme.tertiaryTextStyle
 import com.an.ridesim.ui.viewmodel.AddressFieldType
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 
@@ -160,7 +162,7 @@ fun RideAddressField(
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
-        textStyle = MaterialTheme.typography.bodyLarge,
+        textStyle = primaryTextStyle(),
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 15.dp, bottom = 18.dp, start = 8.dp, end = 8.dp)
@@ -174,7 +176,7 @@ fun RideAddressField(
                 if (value.isEmpty() && !isFocused) {
                     Text(
                         text = placeholder,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = secondaryTextStyle(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -226,7 +228,7 @@ fun SuggestionItem(
             Column(modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)) {
                 Text(
                     text = prediction.getPrimaryText(null).toString(),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                    style = primaryTextStyle(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -235,9 +237,7 @@ fun SuggestionItem(
 
                 Text(
                     text = prediction.getSecondaryText(null).toString(),
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.outline
-                    ),
+                    style = tertiaryTextStyle(color = MaterialTheme.colorScheme.outline),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

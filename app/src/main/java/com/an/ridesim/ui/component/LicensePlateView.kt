@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.an.ridesim.ui.theme.primaryTextStyle
 
 @Composable
 fun LicensePlate(
@@ -33,9 +34,7 @@ fun LicensePlate(
         ) {
             Text(
                 plateNumber,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.errorContainer
-                ),
+                style = primaryTextStyle(color = MaterialTheme.colorScheme.errorContainer),
                 modifier = Modifier.padding(5.dp).align(Alignment.CenterHorizontally)
             )
         }

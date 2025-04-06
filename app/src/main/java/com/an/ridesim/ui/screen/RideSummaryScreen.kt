@@ -43,7 +43,12 @@ import com.an.ridesim.model.VehicleDetail
 import com.an.ridesim.ui.component.TextWithLabelView
 import com.an.ridesim.ui.model.LocationUiModel
 import com.an.ridesim.ui.model.RideUiModel
+import com.an.ridesim.ui.theme.heading3TextStyle
 import com.an.ridesim.ui.theme.headlineStyle
+import com.an.ridesim.ui.theme.primaryTextStyle
+import com.an.ridesim.ui.theme.subTitleTextStyle
+import com.an.ridesim.ui.theme.tertiaryTextStyle
+import com.an.ridesim.ui.theme.titleTextStyle
 import com.an.ridesim.ui.viewmodel.RideViewModel
 import com.an.ridesim.util.RideUtils
 
@@ -65,7 +70,7 @@ fun RideSummaryScreen(
         // Title
         Text(
             text = stringResource(R.string.ride_summary_title),
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            style = titleTextStyle(),
             modifier = Modifier.padding(10.dp)
         )
 
@@ -97,10 +102,9 @@ fun RideSummaryScreen(
         ) {
             Text(
                 text = stringResource(R.string.btn_home),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    textDecoration = TextDecoration.Underline,
+                style = primaryTextStyle(
                     color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                ).copy(textDecoration = TextDecoration.Underline)
             )
         }
     }
@@ -143,8 +147,7 @@ private fun RideSummarySection(
                     // Trip date + time
                     Text(
                         text = RideUtils.getCurrentDateTimeFormatted(),
-                        style = MaterialTheme.typography.bodyLarge
-                            .copy(fontWeight = FontWeight.SemiBold)
+                        style = primaryTextStyle(fontWeight = FontWeight.SemiBold)
                     )
 
                     // Total Price
@@ -162,9 +165,7 @@ private fun RideSummarySection(
                     text = String.format(
                         stringResource(R.string.ride_summary_type), vehicle.vehicleType.name
                     ),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        color = MaterialTheme.colorScheme.outlineVariant
-                    ),
+                    style = heading3TextStyle(),
                     modifier = Modifier.padding(top = 5.dp)
                 )
             }
@@ -213,9 +214,7 @@ private fun VehicleSummarySection(
 
                 Text(
                     text = stringResource(R.string.ride_rating_label),
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        color = MaterialTheme.colorScheme.outline
-                    )
+                    style = subTitleTextStyle()
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -283,9 +282,7 @@ private fun LocationSummarySection(
 
             Text(
                 text = stringResource(R.string.location_summary_title),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
+                style = heading3TextStyle()
             )
 
             Spacer(Modifier.height(15.dp))
@@ -306,26 +303,20 @@ private fun LocationSummarySection(
                     // Pickup
                     Text(
                         text = rideUiModel.rideStartTimeString,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onBackground
+                        style = tertiaryTextStyle(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.SemiBold
                         )
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = pickupLocation?.subLocality ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            fontSize = 13.sp
-                        ),
+                        style = tertiaryTextStyle(fontSize = 13.sp),
                         modifier = Modifier.padding(bottom = 1.dp)
                     )
                     Text(
                         text = pickupLocation?.address ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            fontSize = 13.sp
-                        ),
+                        style = tertiaryTextStyle(fontSize = 13.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -335,24 +326,20 @@ private fun LocationSummarySection(
                     // Drop
                     Text(
                         text = RideUtils.getRideTimeFormatted(),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onBackground
+                        style = tertiaryTextStyle(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.SemiBold
                         )
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = dropLocation?.subLocality ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        ),
+                        style = tertiaryTextStyle(),
                         modifier = Modifier.padding(bottom = 1.dp)
                     )
                     Text(
                         text = dropLocation?.address ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        ),
+                        style = tertiaryTextStyle(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.an.ridesim.R
+import com.an.ridesim.ui.theme.primaryTextStyle
 import kotlinx.coroutines.delay
 
 @Composable
@@ -96,9 +97,7 @@ fun BookRideButton(
             // Centered text on the track
             Text(
                 text = String.format(stringResource(R.string.btn_book_ride), price),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.secondary
-                ),
+                style = primaryTextStyle(color = MaterialTheme.colorScheme.secondary),
                 modifier = Modifier.align(Alignment.Center)
                     .alpha(textAlpha), // Apply alpha based on drag progress
             )

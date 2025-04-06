@@ -43,6 +43,10 @@ import com.an.ridesim.ui.component.DashedDivider
 import com.an.ridesim.ui.component.LicensePlate
 import com.an.ridesim.ui.model.LocationUiModel
 import com.an.ridesim.ui.model.RideUiModel
+import com.an.ridesim.ui.theme.primaryTextStyle
+import com.an.ridesim.ui.theme.subTitleTextStyle
+import com.an.ridesim.ui.theme.tertiaryTextStyle
+import com.an.ridesim.ui.theme.titleTextStyle
 import com.an.ridesim.util.RideUtils
 
 @Composable
@@ -126,7 +130,7 @@ private fun VehicleInfoSection(
                         // Driver name
                         Text(
                             text = rideUiModel.driverName,
-                            style = MaterialTheme.typography.labelLarge,
+                            style = titleTextStyle(),
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
 
@@ -147,7 +151,7 @@ private fun VehicleInfoSection(
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "5",
-                                style = MaterialTheme.typography.labelLarge,
+                                style = titleTextStyle(),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -173,9 +177,7 @@ private fun VehicleInfoSection(
                     Spacer(Modifier.width(4.dp))
                     Text(
                         vehicleDetail.vehicleType.name,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.outline
-                        )
+                        style = tertiaryTextStyle(color = MaterialTheme.colorScheme.outline)
                     )
                     Spacer(Modifier.width(15.dp))
                     Icon(
@@ -187,9 +189,7 @@ private fun VehicleInfoSection(
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = stringResource(vehicleDetail.peopleCount),
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = MaterialTheme.colorScheme.outline
-                        ),
+                        style = subTitleTextStyle(),
                     )
                 }
 
@@ -231,24 +231,20 @@ private fun FareEstimateSection(
             // Fare estimate title
             Text(
                 text = stringResource(id = R.string.ride_started_estimate_info),
-                style = MaterialTheme.typography.labelLarge
+                style = titleTextStyle()
             )
 
             // Total Price
             Text(
                 text = String.format(stringResource(R.string.ride_detail_price), price),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
+                style = titleTextStyle(fontWeight = FontWeight.Bold)
             )
         }
 
         // Payment type
         Text(
             text = stringResource(id = R.string.ride_started_pay_info),
-            style = MaterialTheme.typography.labelMedium.copy(
-                color = MaterialTheme.colorScheme.outline
-            ),
+            style = subTitleTextStyle(),
             modifier = Modifier.padding(top = 6.dp, bottom = 12.dp)
         )
 
@@ -282,7 +278,7 @@ private fun RideAddressSection(
             ) {
                 Text(
                     text = pickupLocation.subLocality ?: "",
-                    style = MaterialTheme.typography.bodyLarge.copy(
+                    style = primaryTextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -294,9 +290,7 @@ private fun RideAddressSection(
 
                 Text(
                     text = pickupLocation.address ?: "",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.outline
-                    ),
+                    style = tertiaryTextStyle(color = MaterialTheme.colorScheme.outline),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -308,7 +302,7 @@ private fun RideAddressSection(
             Column(modifier = Modifier.padding(top = 15.dp, start = 10.dp, end = 10.dp, bottom = 15.dp)) {
                 Text(
                     text = dropLocation.subLocality ?: "",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Medium),
+                    style = primaryTextStyle(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -317,9 +311,7 @@ private fun RideAddressSection(
 
                 Text(
                     text = dropLocation.address ?: "",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.outline
-                    ),
+                    style = tertiaryTextStyle(color = MaterialTheme.colorScheme.outline),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
