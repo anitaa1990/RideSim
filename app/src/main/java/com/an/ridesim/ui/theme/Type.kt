@@ -87,8 +87,12 @@ fun subTitleTextStyle(
 
 @Composable
 fun heading3TextStyle(
-    color: Color = MaterialTheme.colorScheme.outlineVariant
-) = MaterialTheme.typography.labelSmall.copy(color = color)
+    color: Color = MaterialTheme.colorScheme.outlineVariant,
+    fontSize: TextUnit = 13.sp
+) = MaterialTheme.typography.labelSmall.copy(
+    color = color,
+    fontSize = fontSize
+)
 
 @Composable
 fun primaryTextStyle(
