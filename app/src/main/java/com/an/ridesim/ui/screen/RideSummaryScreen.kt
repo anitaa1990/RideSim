@@ -98,7 +98,7 @@ fun RideSummaryScreen(
                 text = stringResource(R.string.btn_home),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = TextDecoration.Underline,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
         }
@@ -114,7 +114,7 @@ private fun RideSummarySection(
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -164,7 +164,7 @@ private fun RideSummarySection(
                         stringResource(R.string.ride_summary_type), vehicle.vehicleType.name
                     ),
                     style = MaterialTheme.typography.labelSmall.copy(
-                        color = Color(0xFF7B8997)
+                        color = MaterialTheme.colorScheme.outlineVariant
                     ),
                     modifier = Modifier.padding(top = 5.dp)
                 )
@@ -183,7 +183,7 @@ private fun VehicleSummarySection(
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -215,7 +215,7 @@ private fun VehicleSummarySection(
                 Text(
                     text = stringResource(R.string.ride_rating_label),
                     style = MaterialTheme.typography.labelMedium.copy(
-                        color = Color(0xFF5F6368)
+                        color = MaterialTheme.colorScheme.outline
                     )
                 )
 
@@ -226,7 +226,7 @@ private fun VehicleSummarySection(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = null,
-                            tint = Color(0xFFFFC107),
+                            tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(25.dp)
                         )
                     }
@@ -275,7 +275,7 @@ private fun LocationSummarySection(
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier
@@ -284,7 +284,9 @@ private fun LocationSummarySection(
 
             Text(
                 text = stringResource(R.string.location_summary_title),
-                style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF7B8997))
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
             )
 
             Spacer(Modifier.height(15.dp))
@@ -307,14 +309,14 @@ private fun LocationSummarySection(
                         text = rideUiModel.rideStartTimeString,
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF202124)
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = pickupLocation?.subLocality ?: "",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF7B8997),
+                            color = MaterialTheme.colorScheme.outlineVariant,
                             fontSize = 13.sp
                         ),
                         modifier = Modifier.padding(bottom = 1.dp)
@@ -322,7 +324,7 @@ private fun LocationSummarySection(
                     Text(
                         text = pickupLocation?.address ?: "",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF7B8997),
+                            color = MaterialTheme.colorScheme.outlineVariant,
                             fontSize = 13.sp
                         ),
                         maxLines = 1,
@@ -336,18 +338,22 @@ private fun LocationSummarySection(
                         text = RideUtils.getRideTimeFormatted(),
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF202124)
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = dropLocation?.subLocality ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF7B8997)),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        ),
                         modifier = Modifier.padding(bottom = 1.dp)
                     )
                     Text(
                         text = dropLocation?.address ?: "",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF7B8997)),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

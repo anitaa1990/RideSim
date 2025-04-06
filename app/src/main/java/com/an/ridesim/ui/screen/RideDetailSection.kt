@@ -50,7 +50,7 @@ fun RideDetailSection(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(Color(0XFFF2F1F4))
+            .background(MaterialTheme.colorScheme.background)
             .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
             .imePadding()
     ) {
@@ -113,7 +113,7 @@ private fun RideDetailTitleSection(
         Box(
             modifier = Modifier
                 .size(4.dp)
-                .background(Color(0xFF5F6368), CircleShape)
+                .background(MaterialTheme.colorScheme.outline, CircleShape)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -123,7 +123,7 @@ private fun RideDetailTitleSection(
             painter = painterResource(R.drawable.ic_history_24),
             contentDescription = stringResource(R.string.content_desc_time),
             modifier = Modifier.size(16.dp),
-            tint = Color(0xFF7B8997)
+            tint = MaterialTheme.colorScheme.outlineVariant
         )
 
         Spacer(modifier = Modifier.width(5.dp))
@@ -141,7 +141,7 @@ fun VehicleListItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val borderColor = if (isSelected) Color(0xFFFAC901) else Color.Transparent
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.secondary else Color.Transparent
 
     Card(
         modifier = Modifier
@@ -149,7 +149,7 @@ fun VehicleListItem(
             .padding(vertical = 10.dp, horizontal = 8.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         border = BorderStroke(1.dp, borderColor)
     ) {
         Row(
@@ -195,7 +195,7 @@ fun VehicleListItem(
                     Text(
                         text = stringResource(id = vehicle.descriptionId),
                         style = MaterialTheme.typography.labelMedium.copy(
-                            color = Color(0xFF5F6368)
+                            color = MaterialTheme.colorScheme.outline
                         )
                     )
 
@@ -205,7 +205,7 @@ fun VehicleListItem(
                     Box(
                         modifier = Modifier
                             .size(4.dp)
-                            .background(Color(0xFF5F6368), CircleShape)
+                            .background(MaterialTheme.colorScheme.outline, CircleShape)
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -223,7 +223,7 @@ fun VehicleListItem(
                     Text(
                         text = stringResource(vehicle.peopleCount),
                         style = MaterialTheme.typography.labelMedium.copy(
-                            color = Color(0xFF5F6368)
+                            color = MaterialTheme.colorScheme.outline
                         ),
                     )
                 }

@@ -1,14 +1,10 @@
 package com.an.ridesim.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = Blue700,
@@ -37,7 +33,8 @@ private val DarkColorScheme = darkColorScheme(
     surfaceTint = Grey600,
     tertiaryContainer = Black200,
     inversePrimary = Amber500,
-    onTertiaryContainer = Black100
+    onSecondaryContainer = Black100,
+    onTertiaryContainer = Grey150
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -67,22 +64,16 @@ private val LightColorScheme = lightColorScheme(
     surfaceTint = Grey600,
     tertiaryContainer = Black200,
     inversePrimary = Amber500,
-    onTertiaryContainer = Black100
+    onSecondaryContainer = Black100,
+    onTertiaryContainer = Grey150
 )
 
 @Composable
 fun RideSimTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }

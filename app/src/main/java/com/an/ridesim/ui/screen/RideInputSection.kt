@@ -52,8 +52,7 @@ fun RideInputSection(
     onDropChange: (String) -> Unit,
     onFieldFocusChanged: (AddressFieldType) -> Unit,
     suggestions: List<AutocompletePrediction>,
-    onSuggestionSelected: (AutocompletePrediction) -> Unit,
-    modifier: Modifier = Modifier
+    onSuggestionSelected: (AutocompletePrediction) -> Unit
 ) {
     // We use LazyColumn here (instead of Column + verticalScroll) because:
     // - It prevents "infinite height constraint" crashes inside BottomSheetScaffold
@@ -63,7 +62,7 @@ fun RideInputSection(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(Color(0XFFF2F1F4))
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .imePadding()
     ) {
@@ -94,15 +93,6 @@ fun RideInputSection(
             }
         }
     }
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color(0XFFF2F1F4))
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-    ) {
-
-    }
 }
 
 @Composable
@@ -118,7 +108,7 @@ fun AddressCard(
             .fillMaxWidth()
             .padding(vertical = 10.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -215,8 +205,8 @@ fun SuggestionItem(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.fillMaxWidth()
             .padding(vertical = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(width = 1.dp, color = Color(0xFFEBEBEB))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceContainer)
     ) {
         Row(
             modifier = Modifier
@@ -228,7 +218,7 @@ fun SuggestionItem(
             Icon(
                 painter = painterResource(R.drawable.ic_history_24),
                 contentDescription = null,
-                tint = Color(0xFF313131),
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .size(30.dp)
             )
@@ -245,7 +235,9 @@ fun SuggestionItem(
 
                 Text(
                     text = prediction.getSecondaryText(null).toString(),
-                    style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF5F6368)),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.outline
+                    ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -261,6 +253,6 @@ fun DividerLine() {
             .fillMaxWidth()
             .padding(start = 5.dp, end = 2.dp)
             .height(1.dp)
-            .background(Color(0xFFE0E0E0))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
     )
 }

@@ -1,6 +1,7 @@
 package com.an.ridesim.ui.component
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -117,8 +118,8 @@ fun GoogleMapView(
 
                 // Interpolate the color for this segment based on its relative position
                 val color = MapUtils.lerpColor(
-                    startColor = Color(0xFFFAC901).toArgb(), // Bright Yellow (Pickup end)
-                    endColor = Color.Black.toArgb(),         // Black (Drop end)
+                    startColor = MaterialTheme.colorScheme.secondary.toArgb(), // Bright Yellow (Pickup end)
+                    endColor = MaterialTheme.colorScheme.onPrimaryContainer.toArgb(),         // Black (Drop end)
                     fraction = adjustedFraction              // Adjusted to allow reversing
                 )
 
