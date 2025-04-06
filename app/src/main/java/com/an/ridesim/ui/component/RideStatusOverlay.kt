@@ -19,17 +19,28 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.an.ridesim.R
+import com.an.ridesim.ui.model.RideStatusUiModel
+import com.an.ridesim.ui.model.RideUiModel
 import com.an.ridesim.ui.theme.heading3TextStyle
 import com.an.ridesim.ui.theme.headlineStyle
 import com.an.ridesim.ui.theme.subTitleTextStyle
+import com.an.ridesim.util.RideUtils
 
 @Composable
-fun TripStatusOverlay(
+fun RideStatusOverlay(
+    rideUiModel: RideUiModel,
+    rideStatusUiModel: RideStatusUiModel
 ) {
+    val textRes = if (rideStatusUiModel.hasDriverArrived)
+        R.string.trip_status_arrived_title
+    else R.string.trip_status_title
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -55,12 +66,15 @@ fun TripStatusOverlay(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "533",
+                            text = String.format(
+                                stringResource(R.string.trip_distance),
+                                rideStatusUiModel.distanceToTarget
+                            ),
                             style = headlineStyle(color = MaterialTheme.colorScheme.onPrimary),
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = "METERS",
+                            text = stringResource(R.string.trip_status_kms),
                             style = heading3TextStyle(
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 fontSize = 10.sp
@@ -74,12 +88,15 @@ fun TripStatusOverlay(
                     modifier = Modifier
                 ) {
                     Text(
-                        text = "RENGANATHAN R is your driver",
+                        text = String.format(stringResource(textRes), rideUiModel.driverName),
                         style = subTitleTextStyle(color = MaterialTheme.colorScheme.onPrimary)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "OTP • 12345",
+                        text = String.format(
+                            stringResource(R.string.trip_status_otp),
+                            rideUiModel.otp
+                        ),
                         style = subTitleTextStyle(color = MaterialTheme.colorScheme.onPrimary)
                     )
                 }
@@ -90,6 +107,19 @@ fun TripStatusOverlay(
 
 @Preview(showBackground = true)
 @Composable
-fun TripStatusOverlayPreview() {
-    TripStatusOverlay()
+fun RideStatusOverlayPreview() {
+    RideStatusOverlay(
+        rideUiModel = RideUiModel(
+            rideId = RideUtils.generateRandomRideId(),
+            driverName = RideUtils.getRandomDriverName(),
+            distanceInKm = 11.0,
+            durationInMinutes = 23,
+            rideStartTimeString = RideUtils.getRideTimeFormatted(),
+            otp = RideUtils.generateSixDigitOtp()
+        ),
+        rideStatusUiModel = RideStatusUiModel(
+            hasDriverArrived = false,
+            distanceToTarget = 1.0
+        )
+    )
 }

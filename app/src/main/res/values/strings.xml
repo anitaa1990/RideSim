@@ -43,4 +43,9 @@
     <string name="ride_id_label">Ride Id</string>
     <string name="location_summary_title">Booking Locations</string>
     <string name="btn_home">Start another trip</string>
+    <string name="trip_status_title">%1$s is your driver</string>
+    <string name="trip_status_arrived_title">%1$s has arrived</string>
+    <string name="trip_status_otp">OTP • %1$s</string>
+    <string name="trip_status_kms">KMS</string>
+    <string name="trip_distance">%.1f</string>
 </resources>

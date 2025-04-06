@@ -25,10 +25,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.ridesim.model.LatLngPoint
 import com.an.ridesim.model.TripState
 import com.an.ridesim.model.hasRideCompleted
+import com.an.ridesim.model.isDrivingArriving
 import com.an.ridesim.model.peekHeight
 import com.an.ridesim.model.shouldFollowCar
 import com.an.ridesim.model.toLatLng
 import com.an.ridesim.ui.component.GoogleMapView
+import com.an.ridesim.ui.component.RideStatusOverlay
 import com.an.ridesim.ui.viewmodel.AddressFieldType
 import com.an.ridesim.ui.viewmodel.RideViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -188,6 +190,13 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+
+        if (uiState.tripState.isDrivingArriving()) {
+            RideStatusOverlay(
+                rideUiModel = uiState.rideUiModel,
+                rideStatusUiModel = uiState.rideStatusUiModel
+            )
         }
 
         if (uiState.isRideBookingReady()) {
