@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.an.ridesim.ui.model.RideStatusUiModel
 
 /**
  * [RideViewModel] manages all business logic and UI state for the RideSim app.
@@ -167,7 +168,8 @@ class RideViewModel @Inject constructor(
                                 driverName = RideUtils.getRandomDriverName(),
                                 distanceInKm = it.distanceInKm,
                                 durationInMinutes = it.durationInMinutes.toInt(),
-                                rideStartTimeString = RideUtils.getRideTimeFormatted()
+                                rideStartTimeString = RideUtils.getRideTimeFormatted(),
+                                otp = RideUtils.generateSixDigitOtp()
                             ),
                             routePolyline = polylinePoints,
                             availableVehicles = vehicleDetails,
@@ -252,7 +254,7 @@ class RideViewModel @Inject constructor(
 
             // Step 4: Simulate vehicle movement from the random start point to the pickup location.
             // This function updates the car's position and polyline during the movement
-            simulateVehicleMovement()
+            simulateVehicleMovement(targetLocation = pickup)
 
             // Initialize the polyline correctly from the driver's initial position to the
             // pickup location. Ensure that the polyline is set correctly the first time with
@@ -271,6 +273,7 @@ class RideViewModel @Inject constructor(
                 _uiState.update { it.copy(routePolyline = initialPolyline) }
             }
 
+            delay(2000)
 
             // Step 5: Once the driver arrives at the pickup, change the trip state to ON_TRIP
             // After the vehicle reaches the pickup location, the trip transitions to the
@@ -286,7 +289,7 @@ class RideViewModel @Inject constructor(
 
             // Step 7: Simulate vehicle movement from the pickup to the drop location
             // Update vehicle's position and polyline during the trip to the drop
-            simulateVehicleMovement()
+            simulateVehicleMovement(targetLocation = drop)
 
             // Step 8: Once the vehicle has arrived at the drop-off location,
             // update the trip state to COMPLETED. Get the final point on the route
@@ -366,7 +369,9 @@ class RideViewModel @Inject constructor(
      * to simulate real-time driving. It also interpolates the car's bearing (rotation) and applies
      * easing curves to ensure natural motion, mimicking real ride-hailing apps like Uber or Ola.
      */
-    private suspend fun simulateVehicleMovement() {
+    private suspend fun simulateVehicleMovement(
+        targetLocation: LatLngPoint
+    ) {
         val path = _uiState.value.routePolyline
 
         // Cannot simulate with less than 2 points
@@ -409,14 +414,24 @@ class RideViewModel @Inject constructor(
                 val lat = start.latitude + (end.latitude - start.latitude) * easedT
                 val lng = start.longitude + (end.longitude - start.longitude) * easedT
 
+                // New car position
+                val newPosition = LatLngPoint(lat, lng)
+
                 // Interpolated rotation between start and target
                 val interpolatedRotation = MapUtils.lerpAngle(startRotation, targetRotation, easedT)
+
+                // Calculate distance between current car position and target location
+                val distanceToTarget = locationUtils.calculateHaversineDistance(newPosition, targetLocation)
 
                 // Update the UI state with new car position and rotation
                 _uiState.update {
                     it.copy(
                         carPosition = LatLngPoint(lat, lng),
-                        carRotation = interpolatedRotation
+                        carRotation = interpolatedRotation,
+                        rideStatusUiModel = RideStatusUiModel(
+                            hasDriverArrived = distanceToTarget < 0.05,
+                            distanceToTarget = distanceToTarget
+                        )
                     )
                 }
 
@@ -451,7 +466,8 @@ class RideViewModel @Inject constructor(
         val routeError: String? = null,
         val focusedField: AddressFieldType = AddressFieldType.NONE,
         val availableVehicles: List<VehicleDetail> = emptyList(),
-        val carRotation: Float? = null
+        val carRotation: Float? = null,
+        val rideStatusUiModel: RideStatusUiModel = RideStatusUiModel()
     ) {
         fun isRideBookingReady() = tripState == TripState.IDLE &&
                 pickupLocation != null

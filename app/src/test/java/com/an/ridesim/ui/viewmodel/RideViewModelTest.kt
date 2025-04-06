@@ -3,6 +3,7 @@ package com.an.ridesim.ui.viewmodel
 import com.an.ridesim.data.PlacesRepository
 import com.an.ridesim.data.RouteRepository
 import com.an.ridesim.model.*
+import com.an.ridesim.ui.model.RideStatusUiModel
 import com.an.ridesim.ui.model.RideUiModel
 import com.an.ridesim.util.LocationUtils
 import com.google.android.gms.maps.model.LatLng
@@ -121,6 +122,8 @@ class RideViewModelTest {
         val ride = state.rideUiModel
         assertNotNull(ride.rideId)
         assertTrue(ride.rideId.length >= 6)
+        assertNotNull(ride.otp)
+        assertTrue(ride.otp?.length == 6)
 
         assertEquals(4.2, ride.distanceInKm!!, 0.01)
         assertEquals(11, ride.durationInMinutes)
@@ -198,6 +201,39 @@ class RideViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(1, state.dropSuggestions.size)
+    }
+
+    @Test
+    fun `simulateVehicleMovement updates rideStatusUiModel with distance and arrival flag`() = runTest {
+        val pickupLatLng = LatLng(13.0, 80.0)
+        val nearPickup = LatLng(13.0001, 80.0001)
+        val path = listOf(nearPickup, pickupLatLng)
+
+        val route = RouteInfo(0.01, 1.0, path)
+
+        whenever(placesRepository.resolvePlaceId("pickup"))
+            .thenReturn(Triple(pickupLatLng, "Pickup", "Area A"))
+        whenever(placesRepository.resolvePlaceId("drop"))
+            .thenReturn(Triple(pickupLatLng, "Drop", "Area B")) // Not relevant here
+        whenever(routeRepository.getRoute(any(), any()))
+            .thenReturn(route)
+
+        viewModel.selectPlace("pickup", true)
+        viewModel.selectPlace("drop", false)
+        runCurrent()
+
+        viewModel.startRideSimulation()
+
+        // Advance coroutine until the vehicle finishes moving to pickup
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        val status = state.rideStatusUiModel
+
+        assertNotNull(status)
+        assertNotNull(status.distanceToTarget)
+        assertTrue(status.distanceToTarget!! < 0.05)
+        assertTrue(status.hasDriverArrived)
     }
 
     @Test
@@ -293,6 +329,7 @@ class RideViewModelTest {
         assertEquals(0, state.availableVehicles.size)
         assertEquals(VehicleDetail.getAuto(), state.selectedVehicle)
         assertEquals(RideUiModel(), state.rideUiModel)
+        assertEquals(RideStatusUiModel(), state.rideStatusUiModel)
         assertNull(state.locationError)
         assertNull(state.routeError)
         assertNull(state.carRotation)
